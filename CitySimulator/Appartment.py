@@ -1,7 +1,7 @@
 ###############################################################
 #Python-based application for handling an Appartment          #
 ###############################################################
-
+import numpy as np
 
 
 class Appartment:
@@ -16,6 +16,18 @@ class Appartment:
         self.lAppartment = lAppartment
         self.persons = []
         self.npersons = 0
+
+    def GetRandomPosition(self):
+
+        while True:
+            x = np.random.normal(self.x, self.lAppartment/2.0) 
+            if abs(x - self.x) < self.lAppartment/2.0:
+                break
+        while True:
+            y = np.random.normal(self.y, self.lAppartment/2.0) 
+            if abs(y - self.y) < self.lAppartment/2.0:
+                break
+        return [x, y]
 
     def assignPeople(self, people):
 

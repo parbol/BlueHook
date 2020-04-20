@@ -2,6 +2,7 @@
 #Python-based application for handling a city                 #
 ###############################################################
 import numpy as np
+import math
 
 from CitySimulator.Building import Building
 from CitySimulator.Person import Person
@@ -24,6 +25,11 @@ class City:
         self.fracLei = fracLei
         self.nFloorIndex = nFloorIndex
         self.nAppartmentIndex = nAppartmentIndex
+        self.timescalehome = 120
+        self.timescalework = 30
+        self.timescaleleisure = 30
+        self.leisurescale = 3
+        self.leisuresitescale = 40
 
         #Creating the places of the city
         listOfBuildings = self.BuildingBuilder()
@@ -44,7 +50,114 @@ class City:
         #Creating the population
         self.thePopulation = self.PopulationBuilder()
         self.realPopulation = len(self.thePopulation)
+
+    ###################################################################################################
+    ###################################################################################################
+    def getHour(self, time):
+
+        days = math.floor(time / (24.0*60.0))
+        newtime = time - days * 24
+        hour = math.floor(newtime / 60)
+        return hour
+
+    ###################################################################################################
+    ###################################################################################################
+    def run(self, time):
+
+        hour = self.getHour(time) 
+
+        for person in self.thePopulation:
+            if (hour >= 0 and hour < 8) or (hour > 21 and hour < 24):
+                if person.lastposition != 0:
+                    self.goHome(person)
+                else:
+                    self.runHome(person)
+            elif (hour >= 8 and hour < 16):
+                if person.lastposition != 1:
+                    self.goWork(person)
+                else:
+                    self.runWork(person)
+            else:
+                if person.lastposition != 2:
+                    self.goLeisure(person)
+                else:
+                    self.runLeisure(person)
+
+    ###################################################################################################
+    ###################################################################################################
+    def goHome(self, person):
         
+        person.lastposition = 0
+        [person.x, person.y] = self.listOfResidentialBuildings[person.building].floors[person.floor].appartments[person.appartment].GetRandomPosition()
+        person.howlongcounter = 0
+        person.howlong = np.random.poisson(self.timescalehome, 1)[0]
+
+    ###################################################################################################
+    ###################################################################################################
+    def runHome(self, person):
+
+        person.howlongcounter = person.howlongcounter + 1
+        if person.howlongcounter >= person.howlong:
+            [person.x, person.y] = self.listOfResidentialBuildings[person.building].floors[person.floor].appartments[person.appartment].GetRandomPosition()
+            person.howlongcounter = 0
+            person.howlong = np.random.poisson(self.timescalehome, 1)[0]
+
+    ###################################################################################################
+    ###################################################################################################
+    def goWork(self, person):
+
+        person.lastposition = 1
+        [person.x, person.y] = self.listOfWorkBuildings[person.workplace].floors[person.floorWorkplace].appartments[person.appartmentWorkplace].GetRandomPosition()
+        person.howlongcounter = 0
+        person.howlong = np.random.poisson(self.timescalework, 1)[0]
+
+    ###################################################################################################
+    ###################################################################################################
+    def runWork(self, person):
+
+        person.howlongcounter = person.howlongcounter + 1
+        if person.howlongcounter >= person.howlong:
+            [person.x, person.y] = self.listOfWorkBuildings[person.workplace].floors[person.floorWorkplace].appartments[person.appartmentWorkplace].GetRandomPosition()
+            self.howlongcounter = 0
+            self.howlong = np.random.poisson(self.timescalework, 1)[0]
+
+    ###################################################################################################
+    ###################################################################################################
+    def goLeisure(self, person):
+
+        person.lastposition = 2
+        person.leisurehowlong = np.random.poisson(self.leisuresitescale, 1)[0]
+        person.leisurehowlongcounter = 0 
+        person.leisurePlace = np.random.randint(0, self.nLeisurePlaces, 1)[0]
+        person.floorLeisurePlace = 0
+        person.appartmentLeisurePlace = np.random.randint(0, self.listOfLeisureBuildings[person.leisurePlace].floors[0].nAppartments, 1)[0]
+        [person.x, person.y] = self.listOfLeisureBuildings[person.leisurePlace].floors[0].appartments[person.appartmentLeisurePlace].GetRandomPosition()
+        person.howlongcounter = 0
+        person.howlong = np.random.poisson(self.leisurescale, 1)[0]
+
+    ###################################################################################################
+    ###################################################################################################
+    def runLeisure(self, person):
+        
+        person.howlongcounter = person.howlongcounter + 1
+        person.leisurehowlongcounter = person.leisurehowlongcounter + 1
+        if person.leisurehowlongcounter >= person.leisurehowlong:
+            person.leisurehowlong = np.random.poisson(self.leisuresitescale, 1)[0]
+            person.leisurehowlongcounter = 0 
+            person.leisurePlace = np.random.randint(0, self.nLeisurePlaces, 1)[0]
+            person.floorLeisurePlace = 0
+            person.appartmentLeisurePlace = np.random.randint(0, self.listOfLeisureBuildings[person.leisurePlace].floors[0].nAppartments, 1)[0]
+            [person.x, person.y] = self.listOfLeisureBuildings[person.leisurePlace].floors[0].appartments[person.appartmentLeisurePlace].GetRandomPosition()
+            person.howlongcounter = 0
+            person.howlong = np.random.poisson(self.leisurescale, 1)[0]
+ 
+        if person.howlongcounter >= person.howlong:
+            [person.x, person.y] = self.listOfLeisureBuildings[person.leisurePlace].floors[0].appartments[person.appartmentLeisurePlace].GetRandomPosition()
+            person.howlongcounter = 0
+            person.howlong = np.random.poisson(self.leisurescale, 1)[0]
+        
+    ###################################################################################################
+    ###################################################################################################
     def BuildingBuilder(self):
 
         buildingsResidential = []
@@ -54,33 +167,39 @@ class City:
         nAppartmentWork = 0
         nAppartmentLeisure = 0
 
+        buildingresidential = 0
+        buildingwork = 0
+        buildingleisure = 0
         for i in range(0, self.nIter):
             for j in range(0, self.nIter):
-                #Building Id
-                theid = 'building_' + str(i) + '_' + str(j)
                 #Type of building  
                 dice = np.random.uniform(0, 1, 1)
                 if dice < self.fracRes:
                     thefloors = 1 + np.random.poisson(self.nFloorIndex, 1)[0]
                     theappartments = 1 + np.random.poisson(self.nAppartmentIndex, 1)[0]
                     nAppartmentResidential = nAppartmentResidential + (theappartments * thefloors)
-                    thebuilding = Building(theid, self.lBuilding, i * self.lBlock + self.lStreet + self.lBuilding/2.0, j * self.lBlock + self.lStreet + self.lBuilding/2.0, 0, thefloors, theappartments)
+                    thebuilding = Building(buildingresidential, self.lBuilding, i * self.lBlock + self.lStreet + self.lBuilding/2.0, j * self.lBlock + self.lStreet + self.lBuilding/2.0, 0, thefloors, theappartments)
                     buildingsResidential.append(thebuilding)
+                    buildingresidential = buildingresidential + 1
                 elif dice >= self.fracRes and dice < (self.fracWor + self.fracRes):
                     thefloors = 1 + np.random.poisson(self.nFloorIndex, 1)[0]
                     theappartments = 1 + np.random.poisson(self.nAppartmentIndex, 1)[0]
                     nAppartmentWork = nAppartmentWork + theappartments * thefloors
-                    thebuilding = Building(theid, self.lBuilding, i * self.lBlock + self.lStreet + self.lBuilding/2.0, j * self.lBlock + self.lStreet + self.lBuilding/2.0, 1, thefloors, theappartments)
+                    thebuilding = Building(buildingwork, self.lBuilding, i * self.lBlock + self.lStreet + self.lBuilding/2.0, j * self.lBlock + self.lStreet + self.lBuilding/2.0, 1, thefloors, theappartments)
                     buildingsWork.append(thebuilding)
+                    buildingwork = buildingwork + 1
                 else:
                     thefloors = 1 
                     theappartments = 1 + np.random.poisson(self.nAppartmentIndex, 1)[0]
                     nAppartmentLeisure = nAppartmentLeisure + theappartments * thefloors
-                    thebuilding = Building(theid, self.lBuilding, i * self.lBlock + self.lStreet + self.lBuilding/2.0, j * self.lBlock + self.lStreet + self.lBuilding/2.0, 2, thefloors, theappartments)
+                    thebuilding = Building(buildingleisure, self.lBuilding, i * self.lBlock + self.lStreet + self.lBuilding/2.0, j * self.lBlock + self.lStreet + self.lBuilding/2.0, 2, thefloors, theappartments)
                     buildingsLeisure.append(thebuilding)
+                    buildingleisure = buildingleisure + 1
         return [[buildingsResidential, nAppartmentResidential], [buildingsWork, nAppartmentWork], [buildingsLeisure, nAppartmentLeisure]]
    
    
+    ###################################################################################################
+    ###################################################################################################
     def PopulationBuilder(self):
 
         thepopulation = []
@@ -103,6 +222,8 @@ class City:
         return thepopulation   
        
 
+    ###################################################################################################
+    ###################################################################################################
     def CountAppartments(self):
 
         a = 0
@@ -110,6 +231,8 @@ class City:
             a = a + b.CountAppartments() 
         return a
 
+    ###################################################################################################
+    ###################################################################################################
     def Print(self):
 
         print('---------------------------------------------------')
