@@ -9,18 +9,16 @@ class Person:
 
         self.theId = theId
         self.person = person
-        self.building = house
-        self.floor = floor
-        self.appartment = appartment
-        self.workplace = workplace
-        self.floorWorkplace = floorworkplace
-        self.appartmentWorkplace = appartmentworkplace
-        self.leisurePlace = 0
-        self.floorLeisurePlace = 0
-        self.appartmentLeisurePlace = 0
-        #Susceptible
-        #Infected
-        #Cured
+        self.residentialBuilding = house
+        self.residentialFloor = floor
+        self.residentialAppartment = appartment
+        self.workplaceBuilding = workplace
+        self.workplaceFloor = floorworkplace
+        self.workplaceAppartment = appartmentworkplace
+        self.activeBuilding = house
+        self.activeFloor = floor
+        self.activeAppartment = appartment
+        #Susceptible, Infected, Cured
         self.health = 0
         #Last position: 0 for home, 1 for work, 2 for leisure
         self.lastposition = 0
@@ -38,8 +36,9 @@ class Person:
         print('---------------------------------------------------')
         print('Id: ' + self.theId)
         print('Person index: ' + str(self.person))
-        print('Living in building: ' + str(self.building) + ', floor: ' + str(self.floor) + ', appartment: ', str(self.appartment))
-        print('Working in building: ' + str(self.workplace) + ', floor: ' + str(self.floorWorkplace) + ', appartment: ', str(self.appartmentWorkplace))
+        print('Living in building: ' + str(self.residentialBuilding) + ', floor: ' + str(self.residentialFloor) + ', appartment: ', str(self.residentialAppartment))
+        print('Working in building: ' + str(self.workplaceBuilding) + ', floor: ' + str(self.workplaceFloor) + ', appartment: ', str(self.workplaceAppartment))
+        print('Active building: ' + str(self.activeBuilding) + ', floor: ' + str(self.activeFloor) + ', appartment: ', str(self.activeAppartment))
         print('Current state: ' + str(self.lastposition))
         print('Position is: (' + str(self.x) + ', ' + str(self.y) + ')')
 
