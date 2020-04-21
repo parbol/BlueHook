@@ -1,6 +1,7 @@
 ###############################################################
 #Python-based application for handling the info a city        #
 ###############################################################
+import math
 
 from CitySimulator.Building import Building
 from CitySimulator.Floor import Floor
@@ -24,8 +25,8 @@ class CityConf:
                 self.lBuilding = float(b)
             if a == 'lStreet':
                 self.lStreet = float(b)
-            if a == 'population':
-                self.population = int(b)
+            if a == 'averagePopulationPerAppartment':
+                self.averagePopulationPerAppartment = int(b)
             if a == 'fracRes':
                 self.fracRes = float(b)
             if a == 'fracWor':
@@ -48,7 +49,18 @@ class CityConf:
                 self.timescaleleisure = float(b)
             if a == 'timescaleleisuresite':
                 self.timescaleleisuresite = float(b)
+            if a == 'curationLambda':
+                self.curationLambda = float(b) * 24.0 * 60.0
+            if a == 'incubationLambda':
+                self.incubationLambda = float(b) * 24.0 * 60.0
+            if a == 'bluetoothRadius':
+                self.bluetoothRadius = float(b)
+            if a == 'infectionRadius':
+                self.infectionRadius = float(b)
+            if a == 'infectionProbability':
+                self.infectionProbability = float(b)
               
+        self.instantInfectionProbability = 1.0 - math.pow(1 - self.infectionProbability, 1.0/30.0)
         self.lBlock = int(self.lBuilding + self.lStreet)
         self.nIter = int(self.size / self.lBlock)
         self.nBuildings = 0
@@ -62,8 +74,6 @@ class CityConf:
         self.nResidentialAppartments = 0
         self.nWorkAppartments = 0
         self.nLeisureAppartments = 0
-        self.averagePopulationPerAppartment = 0
-
         self.realPopulation = 0
 
     ###################################################################################################
@@ -82,7 +92,6 @@ class CityConf:
         self.nLeisureAppartments = self.getAppartments(listOfBuildings, listOfLeisureIndex)
         self.nFloors = self.nResidentialFloors + self.nWorkFloors + self.nLeisureFloors
         self.nAppartments = self.nResidentialAppartments + self.nWorkAppartments + self.nLeisureAppartments
-        self.averagePopulationPerAppartment = int(self.population / self.nResidentialAppartments)
 
    ###################################################################################################
     ###################################################################################################

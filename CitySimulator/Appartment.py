@@ -28,11 +28,11 @@ class Appartment:
 
         hotpoint = np.random.randint(0, self.nHotPoints)
         while True:
-            xv = np.random.normal(self.xhot[hotpoint], self.lAppartment/2.0) 
+            xv = np.random.normal(self.xhot[hotpoint], self.lengthOfHotPoint) 
             if abs(xv - self.x) < self.lAppartment/2.0:
                 break
         while True:
-            yv = np.random.normal(self.yhot[hotpoint], self.lAppartment/2.0) 
+            yv = np.random.normal(self.yhot[hotpoint], self.lengthOfHotPoint) 
             if abs(yv - self.y) < self.lAppartment/2.0:
                 break
         return [xv, yv]
