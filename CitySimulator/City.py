@@ -35,6 +35,11 @@ class City:
         self.nInfected = 0
         self.nCured = 0
         
+        self.days = []
+        self.healthy = []
+        self.infected = []
+        self.cured = []
+        
         #Creating the population
         self.thePopulation = self.PopulationBuilder()
         self.conf.loadPopulationDetails(len(self.thePopulation))
@@ -52,11 +57,11 @@ class City:
         residentialBuildingIndexes = []
         workBuildingIndexes = []
         leisureBuildingIndexes = []
-        
+        tot = self.conf.nIter * self.conf.nIter
+
         for i in range(0, self.conf.nIter):
             for j in range(0, self.conf.nIter):
-                #Type of building  
-                dice = np.random.uniform(0, 1, 1)
+                dice = building / tot
                 if dice < self.conf.fracRes:
                     thebuilding = Building(building, self.conf, i, j, 0)
                     buildings.append(thebuilding)
@@ -111,7 +116,7 @@ class City:
             self.checkStats(i)
             self.runDay(i)
             self.clearBluetooth()
-
+        self.Save()
     ###################################################################################################
     ###################################################################################################
     def runDay(self, day):
@@ -123,6 +128,7 @@ class City:
     ###################################################################################################
     ###################################################################################################
     def run(self):
+
 
         hour = self.getHour() 
         for person in self.thePopulation:
@@ -148,6 +154,7 @@ class City:
                     else:
                         self.runLeisure(person)
         self.match()
+        #self.tracking(0)
 
     ###################################################################################################
     ###################################################################################################
@@ -373,6 +380,30 @@ class City:
         print('----------------Stats--------------------')
         print('Day: ', str(day))
         print('Number of healthy people: ' + str(self.nHealthy) + ', number of infected people: ' + str(self.nInfected) + ', number of cured people: ' + str(self.nCured))  
+        self.days.append(day)
+        self.healthy.append(self.nHealthy)
+        self.infected.append(self.nInfected)
+        self.cured.append(self.nCured)
+
+    ####################################################################################################
+    ###################################################################################################
+    def Save(self):
+
+        thelist = [self.days, self.healthy, self.infected, self.cured]
+        nparr = np.asarray(thelist)
+        np.savetxt("output.csv", nparr, delimiter=',')
+
+    ###################################################################################################
+    ###################################################################################################
+    def tracking(self, n):
+
+        self.thePopulation[n].Print()
+        #print('The active building') 
+        #self.buildings[self.thePopulation[n].activeBuilding].floors[self.thePopulation[n].activeFloor].appartments[self.thePopulation[n].activeAppartment].Print()
+        #print('The residential building') 
+        #self.buildings[self.thePopulation[n].residentialBuilding].floors[self.thePopulation[n].residentialFloor].appartments[self.thePopulation[n].residentialAppartment].Print()
+        #print('The working building') 
+        #self.buildings[self.thePopulation[n].workplaceBuilding].floors[self.thePopulation[n].workplaceFloor].appartments[self.thePopulation[n].workplaceAppartment].Print()
 
     ###################################################################################################
     ###################################################################################################

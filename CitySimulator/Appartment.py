@@ -62,10 +62,12 @@ class Appartment:
         print('Appartment Id: ' + str(self.appartment))
         print('Location: (' + str(self.x) + ', ' + str(self.y) + ')')
         print('Size of Appartments: ' + str(self.lAppartment))
-        print('Number of hotpoints: ' + str(self.nHotPoints))
         print('Number of persons: ' + str(self.npersons))    
         for personindex in self.persons:
             print('Person: ' + str(personindex))
+        print('Number of hotpoints: ' + str(self.nHotPoints))
+        for i in range(0, self.nHotPoints):
+            print('HotPoint: (' + str(self.xhot[i]) + ', ' + str(self.yhot[i]) + ')')
 
 
     

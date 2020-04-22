@@ -35,17 +35,17 @@ class Person:
         self.leisurehowlongcounter = 0
         self.leisurehowlong = 0
         self.bluetoothmatches = []
-
+        
     def bluetoothMatch(self, personindex, x, y, time):
 
         isnew = True 
         for j in self.bluetoothmatches:
-            if personindex == j[0] and time == j[3]+1:
+            if personindex == j[0]:
                 j[3] = time
                 j[4] = j[4] + 1
                 isnew = False
-        if not isnew:
-            self.bluetoothmatches.append((personindex, x, y, time, 0))
+        if isnew:
+            self.bluetoothmatches.append([personindex, x, y, time, 0])
 
     def Print(self):
 
@@ -59,6 +59,10 @@ class Person:
         print('Active building: ' + str(self.activeBuilding) + ', floor: ' + str(self.activeFloor) + ', appartment: ', str(self.activeAppartment))
         print('Current state: ' + str(self.lastposition))
         print('Position is: (' + str(self.x) + ', ' + str(self.y) + ')')
+        print('Health State is: ' + str(self.health) + ' ' + ' symptoms: ' + str(self.symptoms))
+        print('Bluetoothmatches:')
+        for j in self.bluetoothmatches:
+            print(j)
 
 
 

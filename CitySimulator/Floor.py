@@ -17,7 +17,7 @@ class Floor:
         self.nAppartmentsPerSide = math.floor(math.sqrt(nAppartments))
         self.nAppartments =  self.nAppartmentsPerSide * self.nAppartmentsPerSide 
         self.appartments = []
-        self.lAppartment = conf.lBuilding/self.nAppartments
+        self.lAppartment = conf.lBuilding/self.nAppartmentsPerSide
 
         for i in range(0, self.nAppartmentsPerSide):
             for j in range(0, self.nAppartmentsPerSide):
