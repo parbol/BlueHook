@@ -115,8 +115,8 @@ class City:
         for i in range(0, days):
             self.checkStats(i)
             self.runDay(i)
-            self.clearBluetooth()
         self.Save()
+
     ###################################################################################################
     ###################################################################################################
     def runDay(self, day):
@@ -128,7 +128,6 @@ class City:
     ###################################################################################################
     ###################################################################################################
     def run(self):
-
 
         hour = self.getHour() 
         for person in self.thePopulation:
@@ -153,6 +152,8 @@ class City:
                         self.goLeisure(person)
                     else:
                         self.runLeisure(person)
+            if self.time % (24 * 60) == person.bluetoothUpdate:
+                person.connectBluetooth()
         self.match()
         #self.tracking(0)
 
@@ -240,7 +241,6 @@ class City:
     
         self.thePopulation[person1].bluetoothMatch(person2, self.thePopulation[person1].x, self.thePopulation[person1].y, self.time)
         self.thePopulation[person2].bluetoothMatch(person1, self.thePopulation[person2].x, self.thePopulation[person2].y, self.time)
-
 
     ###################################################################################################
     ###################################################################################################

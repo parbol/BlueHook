@@ -1,6 +1,12 @@
 ###############################################################
 #Python-based application for handling a Person               #
 ###############################################################
+import numpy as np
+
+from JanusAPI.Match import Match
+from JanusAPI.User import User
+from JanusAPI.JanusServer import JanusServer
+
 
 class Person:
 
@@ -35,17 +41,28 @@ class Person:
         self.leisurehowlongcounter = 0
         self.leisurehowlong = 0
         self.bluetoothmatches = []
-        
+        self.bluetootholdmatches = []
+        self.bluetoothUpdate = np.random.randint(0, 24*60, 1)[0]
+
     def bluetoothMatch(self, personindex, x, y, time):
 
         isnew = True 
         for j in self.bluetoothmatches:
-            if personindex == j[0]:
+            if personindex == j[0] and j[3]+1 == time:
                 j[3] = time
                 j[4] = j[4] + 1
                 isnew = False
         if isnew:
             self.bluetoothmatches.append([personindex, x, y, time, 0])
+
+
+    def updateBluetooth(self, janus):
+
+        for i in self.bluetoothmatches:
+            user1 = User(self.person, self.health, 0, self.timeOfInfection, self.timeOfCuration)
+            
+    def __init__(self, nameid, state, firstlogin, infectiondate, curationdate):
+
 
     def Print(self):
 
