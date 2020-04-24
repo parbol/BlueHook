@@ -18,8 +18,8 @@ class User:
         print('---------------User---------------')
         print('Name Id: ', str(self.nameid))
         print('State: ', str(self.state))
-        print('First login: ', str(self.firstlogin)))
-        print('Infection date: ', str(self.infectiondate)))
-        print('Curation date: ', str(self.curationdate)))
+        print('First login: ', str(self.firstlogin))
+        print('Infection date: ', str(self.infectiondate))
+        print('Curation date: ', str(self.curationdate))
 
 

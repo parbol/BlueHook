@@ -10,10 +10,11 @@ from JanusAPI.JanusServer import JanusServer
 
 class Person:
 
-    def __init__(self, theId, person, house, floor, appartment, workplace, floorworkplace, appartmentworkplace):
+    def __init__(self, theId, person, house, floor, appartment, workplace, floorworkplace, appartmentworkplace, conf):
 
         self.theId = theId
         self.person = person
+        #Location information  
         self.residentialBuilding = house
         self.residentialFloor = floor
         self.residentialAppartment = appartment
@@ -23,26 +24,51 @@ class Person:
         self.activeBuilding = house
         self.activeFloor = floor
         self.activeAppartment = appartment
-        #Susceptible, Infected, Cured
-        self.health = 0
-        self.newHealth = 0
-        self.timeOfInfection = 0
-        self.timeOfCuration = 0
-        self.timeOfIncubation = 0
-        self.timeInfected = 0
-        self.symptoms = 0
-        #Last position: 0 for home, 1 for work, 2 for leisure
-        self.lastposition = 0
         self.x = 0
         self.y = 0
         self.z = floor * 3
+        #Activity times
+        self.timeToGoToWork = 0 
+        self.timeToLeaveWork = 0
+        self.timeToGoHome = 0
+        self.updateHours()
+
+        #Last position: 0 for home, 1 for work, 2 for leisure
+        self.lastposition = 0
         self.howlongcounter = 0
         self.howlong = 0
         self.leisurehowlongcounter = 0
         self.leisurehowlong = 0
+        #Susceptible, Infected, Cured
+        self.health = 0
+        self.newHealth = 0
+        self.quarantine = 0
+        self.timeOfInfection = 0
+        self.timeToInfect = np.random.poisson(conf.timeToInfectLambda, 1)[0]
+        self.canInfect = 0
+        self.timeOfIncubation = self.timeToInfect + np.random.poisson(conf.incubationLambda, 1)[0]
+        self.timeOfCuration = self.timeOfIncubation + np.random.poisson(conf.curationLambda, 1)[0]
+        self.symptoms = 0
+        #Bluetooth 
         self.bluetoothmatches = []
-        self.bluetootholdmatches = []
+        self.bluetoothOldMatches = []
         self.bluetoothUpdate = np.random.randint(0, 24*60, 1)[0]
+
+
+    def updateHours(self):
+        self.timeToGoToWork = np.random.normal(8, 1, 1)[0]
+        self.timeToLeaveWork = np.random.normal(16, 3, 1)[0]
+        self.timeToGoHome = np.random.normal(21, 3, 1)[0]
+
+
+    def infect(self, time):
+
+        self.newHealth = 1
+        self.timeOfInfection = time
+        self.timeToInfect = self.timeToInfect + time
+        self.timeOfIncubation = self.timeOfIncubation + time
+        self.timeOfCuration = self.timeOfCuration + time
+
 
     def bluetoothMatch(self, personindex, x, y, time):
 
@@ -60,8 +86,11 @@ class Person:
 
         for i in self.bluetoothmatches:
             user1 = User(self.person, self.health, 0, self.timeOfInfection, self.timeOfCuration)
-            
-    def __init__(self, nameid, state, firstlogin, infectiondate, curationdate):
+            match = Match(user1, i[0], [i[1], i[2]], i[3], i[4])
+            janus.insertMatchFake(match)
+            self.bluetoothOldMatches.append(i)
+        self.bluetoothmatches.clear()
+
 
 
     def Print(self):

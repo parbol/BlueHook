@@ -5,6 +5,9 @@ from CitySimulator.Building import Building
 from CitySimulator.Person import Person
 from CitySimulator.CityConf import CityConf
 
+from JanusAPI.JanusServer import JanusServer
+
+
 import numpy as np
 import math
 import itertools
@@ -13,8 +16,11 @@ import itertools
 ###############################################################
 class City:
 
-    def __init__(self, confName):
+    def __init__(self, confName, serverlocation):
  
+
+        self.janus = JanusServer(serverlocation)
+
         #Internal parameters of the city
         self.conf = CityConf(confName) 
 
@@ -96,14 +102,12 @@ class City:
                         buildingworkplace = self.workBuildingIndexes[np.random.randint(0, self.conf.nWorkBuildings, 1)[0]]
                         floorworkplace = np.random.randint(0, self.buildings[buildingworkplace].nFloors, 1)[0]
                         appartmentworkplace = np.random.randint(0, self.buildings[buildingworkplace].floors[floorworkplace].nAppartments, 1)[0]
-                        person = Person(personId, personindex, house.building, floor.floor, app.appartment, buildingworkplace, floorworkplace, appartmentworkplace) 
+                        person = Person(personId, personindex, house.building, floor.floor, app.appartment, buildingworkplace, floorworkplace, appartmentworkplace, self.conf) 
                         thepopulation.append(person)
                         indexofpeople.append(personindex) 
                         personindex = personindex + 1
                     app.assignPeople(indexofpeople)
-        thepopulation[0].health = 1
-        thepopulation[0].timeOfIncubation = self.conf.incubationLambda
-        thepopulation[0].timeOfCuration = thepopulation[0].timeOfIncubation + self.conf.curationLambda
+        thepopulation[0].infect(self.time)
         return thepopulation   
 
        
@@ -122,27 +126,27 @@ class City:
     def runDay(self, day):
 
         for j in range(0, 24*60):
-            self.run()
+            self.runMinute()
             self.time = self.time + 1
     
     ###################################################################################################
     ###################################################################################################
-    def run(self):
+    def runMinute(self):
 
         hour = self.getHour() 
         for person in self.thePopulation:
-            if person.health == 1 and person.symptoms == 1:
+            if person.quarantine == 1:
                 if person.lastposition != 0:
                     self.goHome(person)
                 else:
                     self.runHome(person)
             else:
-                if (hour >= 0 and hour < 8) or (hour > 21 and hour < 24):
+                if hour >= person.timeToGoHome and hour < person.timeToGoToWork:
                     if person.lastposition != 0:
                         self.goHome(person)
                     else:
                         self.runHome(person)
-                elif (hour >= 8 and hour < 16):
+                elif (hour >= person.timeToGoToWork and hour < timeToLeaveWork):
                     if person.lastposition != 1:
                         self.goWork(person)
                     else:
@@ -153,7 +157,7 @@ class City:
                     else:
                         self.runLeisure(person)
             if self.time % (24 * 60) == person.bluetoothUpdate:
-                person.connectBluetooth()
+                person.updateBluetooth(self.janus)
         self.match()
         #self.tracking(0)
 
@@ -174,7 +178,7 @@ class City:
                     for i in itertools.product(app.persons, app.persons):
                         if i[0] <= i[1]:
                             continue
-                        if not (self.thePopulation[i[0]].health == 1 or self.thePopulation[i[1]].health == 1):
+                        if not (self.thePopulation[i[0]].canInfect == 1 or self.thePopulation[i[1]].canInfect == 1):
                             continue 
                         if self.thePopulation[i[0]].health == 1 and self.thePopulation[i[1]].health == 1:
                             continue
@@ -225,15 +229,9 @@ class City:
         dice = np.random.uniform(0, 1, 1)[0]
         if dice < self.conf.instantInfectionProbability:
             if self.thePopulation[person1].health == 1:
-                self.thePopulation[person2].newHealth = 1
-                self.thePopulation[person2].timeOfInfection = self.time
-                self.thePopulation[person2].timeOfIncubation = self.time + np.random.poisson(self.conf.incubationLambda, 1)[0]
-                self.thePopulation[person2].timeOfCuration = self.thePopulation[person2].timeOfIncubation + np.random.poisson(self.conf.curationLambda, 1)[0]
+                self.thePopulation[person2].infect(self.time)
             else:
-                self.thePopulation[person1].newHealth = 1
-                self.thePopulation[person1].timeOfInfection = self.time
-                self.thePopulation[person1].timeOfIncubation = self.time + np.random.poisson(self.conf.incubationLambda, 1)[0]
-                self.thePopulation[person1].timeOfCuration = self.thePopulation[person1].timeOfIncubation + np.random.poisson(self.conf.curationLambda, 1)[0]
+                self.thePopulation[person1].infect(self.time)
 
     ###################################################################################################
     ###################################################################################################
@@ -256,16 +254,26 @@ class City:
         self.nHealthy = 0
         self.nInfected = 0
         self.nCured = 0
-
+        #For each person
         for i in self.thePopulation:
+            #If healthy -> update
             if i.health == 0:
                 i.health = i.newHealth
+            #If infected
             if i.health == 1:
+                #If cured
                 if self.time > i.timeOfCuration:
                     i.health = 2
                     i.symptoms = 0
+                    i.quarantine = 0 
+                    i.canInfect = 0
+                #If presenting symptoms
                 elif self.time > i.timeOfIncubation:
                     i.symptoms = 1
+                    i.quarantine = 1
+                #If passed infection time
+                elif self.time > i.timeToInfect:
+                    i.canInfect = 1
             if i.health == 0:
                 self.nHealthy = self.nHealthy + 1
             elif i.health == 1:

@@ -16,7 +16,7 @@ class Match:
         self.time = time
         self.duration = duration
         
-    def Print(self)
+    def Print(self):
         print('----------------------Match---------------------')
         print('Id1 :', self.user1)
         self.user1.Print()
