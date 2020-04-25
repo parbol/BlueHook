@@ -16,10 +16,12 @@ import itertools
 ###############################################################
 class City:
 
-    def __init__(self, confName, serverlocation):
+    def __init__(self, confName, serverlocation, filename, seed):
  
+        np.random.seed(seed)
 
         self.janus = JanusServer(serverlocation)
+        self.filename = filename
 
         #Internal parameters of the city
         self.conf = CityConf(confName) 
@@ -141,25 +143,31 @@ class City:
                 else:
                     self.runHome(person)
             else:
-                if theTime >= person.timeToGoHome and theTime < person.timeToGoToWork and person.lastposition != 0:
-                    self.goHome(person)
-                elif person.lastposition == 0 and theTime < person.timeToGoToWork:
-                    self.runHome(person)
-                elif (theTime >= person.timeToGoToWork and theTime < person.timeToLeaveWork):
-                    if person.lastposition != 1:
+                if theTime >= person.timeToGoHome:
+                    if person.lastposition == 2:
+                        self.goHome(person)
+                    else:
+                        self.runHome(person)
+                elif theTime < person.timeToGoToWork:
+                    if person.lastposition == 2:
+                        self.goHome(person)
+                    else:
+                        self.runHome(person)
+                elif theTime >= person.timeToGoToWork and theTime < person.timeToLeaveWork:
+                    if person.lastposition == 0:
                         self.goWork(person)
                     else:
                         self.runWork(person)
-                else:
-                    if person.lastposition != 2:
+                elif theTime >= person.timeToLeaveWork and theTime < person.timeToGoHome:
+                    if person.lastposition == 1:
                         self.goLeisure(person)
                     else:
                         self.runLeisure(person)
             if theTime == person.bluetoothUpdate:
                 person.updateBluetooth(self.janus)
         self.match()
-        print(self.time)
-        self.tracking(0)
+        #print('Time: ' + str(self.time))
+        #self.tracking(0)
 
     ###################################################################################################
     ###################################################################################################
@@ -269,8 +277,9 @@ class City:
                     i.canInfect = 0
                 #If presenting symptoms
                 elif self.time > i.timeOfIncubation:
-                    i.symptoms = 1
-                    i.quarantine = 1
+                    if i.hasSymptoms:
+                        i.symptoms = 1
+                        i.quarantine = 1
                 #If passed infection time
                 elif self.time > i.timeToInfect:
                     i.canInfect = 1
@@ -401,7 +410,7 @@ class City:
 
         thelist = [self.days, self.healthy, self.infected, self.cured]
         nparr = np.asarray(thelist)
-        np.savetxt("output.csv", nparr, delimiter=',')
+        np.savetxt(self.filename, nparr, delimiter=',')
 
     ###################################################################################################
     ###################################################################################################

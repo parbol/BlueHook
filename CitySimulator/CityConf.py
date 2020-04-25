@@ -61,7 +61,9 @@ class CityConf:
                 self.infectionProbability = float(b)
             if a == 'timeToInfectLambda':
                 self.timeToInfectLambda = float(b)
-              
+            if a == 'noSymptomsProbability':
+                self.noSymptomsProbability = float(b)
+                                     
         self.instantInfectionProbability = 1.0 - math.pow(1 - self.infectionProbability, 1.0/30.0)
         self.lBlock = int(self.lBuilding + self.lStreet)
         self.nIter = int(self.size / self.lBlock)

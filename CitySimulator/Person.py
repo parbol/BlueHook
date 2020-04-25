@@ -48,6 +48,11 @@ class Person:
         self.canInfect = 0
         self.timeOfIncubation = self.timeToInfect + np.random.poisson(conf.incubationLambda, 1)[0]
         self.timeOfCuration = self.timeOfIncubation + np.random.poisson(conf.curationLambda, 1)[0]
+        dice = np.random.uniform(0, 1, 1)[0]
+        if dice < conf.noSymptomsProbability:
+            self.hasSymptoms = 0
+        else:
+            self.hasSymptoms = 1
         self.symptoms = 0
         #Bluetooth 
         self.bluetoothmatches = []
