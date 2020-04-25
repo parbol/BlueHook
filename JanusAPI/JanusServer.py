@@ -49,8 +49,9 @@ class JanusServer:
 
     def insertMatchFake(self, match):
 
-        print('Inserting the following match in the database:')
-        match.Print()
+        a = 1
+        #print('Inserting the following match in the database:')
+        #match.Print()
 
 
 

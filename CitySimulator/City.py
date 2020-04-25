@@ -133,7 +133,7 @@ class City:
     ###################################################################################################
     def runMinute(self):
 
-        hour = self.getHour() 
+        theTime = self.time % 1440 
         for person in self.thePopulation:
             if person.quarantine == 1:
                 if person.lastposition != 0:
@@ -141,12 +141,11 @@ class City:
                 else:
                     self.runHome(person)
             else:
-                if hour >= person.timeToGoHome and hour < person.timeToGoToWork:
-                    if person.lastposition != 0:
-                        self.goHome(person)
-                    else:
-                        self.runHome(person)
-                elif (hour >= person.timeToGoToWork and hour < timeToLeaveWork):
+                if theTime >= person.timeToGoHome and theTime < person.timeToGoToWork and person.lastposition != 0:
+                    self.goHome(person)
+                elif person.lastposition == 0 and theTime < person.timeToGoToWork:
+                    self.runHome(person)
+                elif (theTime >= person.timeToGoToWork and theTime < person.timeToLeaveWork):
                     if person.lastposition != 1:
                         self.goWork(person)
                     else:
@@ -156,10 +155,11 @@ class City:
                         self.goLeisure(person)
                     else:
                         self.runLeisure(person)
-            if self.time % (24 * 60) == person.bluetoothUpdate:
+            if theTime == person.bluetoothUpdate:
                 person.updateBluetooth(self.janus)
         self.match()
-        #self.tracking(0)
+        print(self.time)
+        self.tracking(0)
 
     ###################################################################################################
     ###################################################################################################
@@ -281,10 +281,12 @@ class City:
             else:
                 self.nCured = self.nCured + 1
 
+
     ###################################################################################################
     ###################################################################################################
     def goHome(self, person):
-        
+
+        person.setHours()
         self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].removePerson(person.person)  
         person.lastposition = 0
         person.activeBuilding = person.residentialBuilding
@@ -326,8 +328,8 @@ class City:
         person.howlongcounter = person.howlongcounter + 1
         if person.howlongcounter >= person.howlong:
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
-            self.howlongcounter = 0
-            self.howlong = np.random.poisson(self.conf.timescalework, 1)[0]
+            person.howlongcounter = 0
+            person.howlong = np.random.poisson(self.conf.timescalework, 1)[0]
 
     ###################################################################################################
     ###################################################################################################

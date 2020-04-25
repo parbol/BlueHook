@@ -31,7 +31,7 @@ class Person:
         self.timeToGoToWork = 0 
         self.timeToLeaveWork = 0
         self.timeToGoHome = 0
-        self.updateHours()
+        self.setHours()
 
         #Last position: 0 for home, 1 for work, 2 for leisure
         self.lastposition = 0
@@ -54,12 +54,16 @@ class Person:
         self.bluetoothOldMatches = []
         self.bluetoothUpdate = np.random.randint(0, 24*60, 1)[0]
 
-
-    def updateHours(self):
-        self.timeToGoToWork = np.random.normal(8, 1, 1)[0]
-        self.timeToLeaveWork = np.random.normal(16, 3, 1)[0]
-        self.timeToGoHome = np.random.normal(21, 3, 1)[0]
-
+    def setHours(self):
+        while True:
+            self.timeToGoToWork = int(np.random.normal(480, 60, 1)[0]) 
+            if self.timeToGoToWork < 240 or self.timeToGoToWork > 660:
+                continue
+            self.timeToLeaveWork = (self.timeToGoToWork + int(np.random.normal(480, 60, 1)[0]))
+            self.timeToGoHome = (self.timeToLeaveWork + int(np.random.normal(240, 120, 1)[0]))
+            if self.timeToGoHome >= 1440:
+                continue
+            break
 
     def infect(self, time):
 
@@ -81,7 +85,6 @@ class Person:
         if isnew:
             self.bluetoothmatches.append([personindex, x, y, time, 0])
 
-
     def updateBluetooth(self, janus):
 
         for i in self.bluetoothmatches:
@@ -90,7 +93,6 @@ class Person:
             janus.insertMatchFake(match)
             self.bluetoothOldMatches.append(i)
         self.bluetoothmatches.clear()
-
 
 
     def Print(self):
@@ -103,6 +105,9 @@ class Person:
         print('Living in building: ' + str(self.residentialBuilding) + ', floor: ' + str(self.residentialFloor) + ', appartment: ', str(self.residentialAppartment))
         print('Working in building: ' + str(self.workplaceBuilding) + ', floor: ' + str(self.workplaceFloor) + ', appartment: ', str(self.workplaceAppartment))
         print('Active building: ' + str(self.activeBuilding) + ', floor: ' + str(self.activeFloor) + ', appartment: ', str(self.activeAppartment))
+        print('Time to go home: ', str(self.timeToGoHome))
+        print('Time to go work: ', str(self.timeToGoToWork))
+        print('Time to leave work: ', str(self.timeToLeaveWork))
         print('Current state: ' + str(self.lastposition))
         print('Position is: (' + str(self.x) + ', ' + str(self.y) + ')')
         print('Health State is: ' + str(self.health) + ' ' + ' symptoms: ' + str(self.symptoms))
