@@ -60,7 +60,7 @@ class CityConf:
             if a == 'infectionProbability':
                 self.infectionProbability = float(b)
             if a == 'timeToInfectLambda':
-                self.timeToInfectLambda = float(b)
+                self.timeToInfectLambda = float(b) * 24.0 * 60.0
             if a == 'noSymptomsProbability':
                 self.noSymptomsProbability = float(b)
                                      

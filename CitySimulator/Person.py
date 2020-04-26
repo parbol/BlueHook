@@ -28,9 +28,10 @@ class Person:
         self.y = 0
         self.z = floor * 3
         #Activity times
-        self.timeToGoToWork = 0 
-        self.timeToLeaveWork = 0
-        self.timeToGoHome = 0
+        self.timeToGoToWork = 1441 
+        self.timeToLeaveWork = 1441
+        self.timeToGoHome = 1441
+        self.oldTimeToGoHome = 1441 
         self.setHours()
 
         #Last position: 0 for home, 1 for work, 2 for leisure
@@ -60,6 +61,7 @@ class Person:
         self.bluetoothUpdate = np.random.randint(0, 24*60, 1)[0]
 
     def setHours(self):
+        self.oldTimeToGoHome = self.timeToGoHome
         while True:
             self.timeToGoToWork = int(np.random.normal(480, 60, 1)[0]) 
             if self.timeToGoToWork < 240 or self.timeToGoToWork > 660:
@@ -68,6 +70,7 @@ class Person:
             self.timeToGoHome = (self.timeToLeaveWork + int(np.random.normal(240, 120, 1)[0]))
             if self.timeToGoHome >= 1440:
                 continue
+
             break
 
     def infect(self, time):
@@ -115,7 +118,14 @@ class Person:
         print('Time to leave work: ', str(self.timeToLeaveWork))
         print('Current state: ' + str(self.lastposition))
         print('Position is: (' + str(self.x) + ', ' + str(self.y) + ')')
-        print('Health State is: ' + str(self.health) + ' ' + ' symptoms: ' + str(self.symptoms))
+        print('Health State is: ' + str(self.health) + ' can infect is: ' + str(self.canInfect))
+        print('Can have symptoms: ' + str(self.hasSymptoms) + ', has symptoms: ' + str(self.symptoms))
+        print('Quarentine is: ' + str(self.quarantine))
+        print('Time of infection: ' + str(self.timeOfInfection))
+        print('Time to infect: ' + str(self.timeToInfect))
+        print('Time of incubation: ' + str(self.timeOfIncubation))
+        print('Time of curation: ' + str(self.timeOfCuration))
+
         print('Bluetoothmatches:')
         for j in self.bluetoothmatches:
             print(j)

@@ -143,31 +143,26 @@ class City:
                 else:
                     self.runHome(person)
             else:
-                if theTime >= person.timeToGoHome:
-                    if person.lastposition == 2:
-                        self.goHome(person)
-                    else:
+                if person.lastposition == 0:
+                    if theTime < person.timeToGoToWork or theTime >= person.oldTimeToGoHome:
                         self.runHome(person)
-                elif theTime < person.timeToGoToWork:
-                    if person.lastposition == 2:
-                        self.goHome(person)
                     else:
-                        self.runHome(person)
-                elif theTime >= person.timeToGoToWork and theTime < person.timeToLeaveWork:
-                    if person.lastposition == 0:
-                        self.goWork(person)
-                    else:
+                        self.goWork(person)  
+                elif person.lastposition == 1:
+                    if theTime < person.timeToLeaveWork:
                         self.runWork(person)
-                elif theTime >= person.timeToLeaveWork and theTime < person.timeToGoHome:
-                    if person.lastposition == 1:
-                        self.goLeisure(person)
                     else:
+                        self.goLeisure(person)
+                elif person.lastposition == 2:
+                    if theTime < person.timeToGoHome:
                         self.runLeisure(person)
+                    else:
+                        self.goHome(person)
             if theTime == person.bluetoothUpdate:
                 person.updateBluetooth(self.janus)
         self.match()
-        #print('Time: ' + str(self.time))
-        #self.tracking(0)
+        print('Time: ' + str(self.time))
+        self.tracking(253)
 
     ###################################################################################################
     ###################################################################################################
@@ -191,6 +186,8 @@ class City:
                         if self.thePopulation[i[0]].health == 1 and self.thePopulation[i[1]].health == 1:
                             continue
                         if self.thePopulation[i[0]].health == 2 or self.thePopulation[i[1]].health == 2:
+                            continue
+                        if self.thePopulation[i[0]].quarantine == 1 or self.thePopulation[i[1]].quarantine == 1:
                             continue
                         x1 = self.thePopulation[i[0]].x
                         x2 = self.thePopulation[i[1]].x
@@ -233,9 +230,9 @@ class City:
     ###################################################################################################
     ###################################################################################################
     def infect(self, person1, person2):
-        #print('Infection between ' + str(person1) + ' ' + str(person2))
         dice = np.random.uniform(0, 1, 1)[0]
         if dice < self.conf.instantInfectionProbability:
+            #print('Infection between ' + str(person1) + ' ' + str(person2))
             if self.thePopulation[person1].health == 1:
                 self.thePopulation[person2].infect(self.time)
             else:

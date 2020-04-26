@@ -18,9 +18,9 @@ class Match:
         
     def Print(self):
         print('----------------------Match---------------------')
-        print('Id1 :', self.user1)
+        print('Id1 : ')
         self.user1.Print()
-        print('Id2 :', self.user2)
+        print('Id2 :' + self.user2)
         print('Location: ', '(' + str(self.hlocation) + ', ' + str(self.vlocation) + ')')
         print('Time: ', str(self.time))
         print('Duration: ', str(self.duration))
