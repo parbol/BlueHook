@@ -3,8 +3,6 @@
 ###############################################################
 import numpy as np
 
-from JanusAPI.Match import Match
-from JanusAPI.User import User
 from JanusAPI.JanusServer import JanusServer
 
 
@@ -96,9 +94,7 @@ class Person:
     def updateBluetooth(self, janus):
 
         for i in self.bluetoothmatches:
-            user1 = User(self.person, self.health, 0, self.timeOfInfection, self.timeOfCuration)
-            match = Match(user1, i[0], [i[1], i[2]], i[3], i[4])
-            janus.insertMatchFake(match)
+            janus.insertMatch('person_' + str(self.person), 'person_' + str(i[0]), int(self.health), int(0), int(self.timeOfInfection), int(self.timeOfCuration), i[1], i[2], int(i[3]), int(i[4]))
             self.bluetoothOldMatches.append(i)
         self.bluetoothmatches.clear()
 

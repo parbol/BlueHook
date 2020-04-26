@@ -161,8 +161,8 @@ class City:
             if theTime == person.bluetoothUpdate:
                 person.updateBluetooth(self.janus)
         self.match()
-        print('Time: ' + str(self.time))
-        self.tracking(253)
+        #print('Time: ' + str(self.time))
+        #self.tracking(253)
 
     ###################################################################################################
     ###################################################################################################
