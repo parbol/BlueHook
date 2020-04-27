@@ -16,11 +16,11 @@ import itertools
 ###############################################################
 class City:
 
-    def __init__(self, confName, serverlocation, filename, seed):
+    def __init__(self, confName, serverlocation, filename, seed, mode):
  
         np.random.seed(seed)
 
-        self.janus = JanusServer(serverlocation)
+        self.janus = JanusServer(serverlocation, mode)
         self.filename = filename
 
         #Internal parameters of the city
@@ -48,7 +48,9 @@ class City:
         self.infected = []
         self.cured = []
         
-        #Creating the population
+        self.numberOfTestsDonePerDay = 0
+        
+		#Creating the population
         self.thePopulation = self.PopulationBuilder()
         self.conf.loadPopulationDetails(len(self.thePopulation))
         self.update()
@@ -121,6 +123,7 @@ class City:
         for i in range(0, days):
             self.checkStats(i)
             self.runDay(i)
+            self.numberOfTestsDonePerDay = 0
         self.Save()
 
     ###################################################################################################
@@ -280,6 +283,13 @@ class City:
                 #If passed infection time
                 elif self.time > i.timeToInfect:
                     i.canInfect = 1
+            if self.conf.strategy == 1:
+                if i.quarantine != 1 and self.numberOfTestsDonePerDay <= self.conf.numberOfTestsPerDay:
+                    dice = np.random.uniform(0, 1, 1)[0]
+                    if dice < self.conf.numberOfTestsPerDay/self.conf.realPopulation:
+                        if i.health == 1:
+                            i.quarantine = 1
+                        self.numberOfTestsDonePerDay = self.numberOfTestsDonePerDay + 1
             if i.health == 0:
                 self.nHealthy = self.nHealthy + 1
             elif i.health == 1:

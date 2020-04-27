@@ -13,15 +13,19 @@ from gremlin_python.driver.driver_remote_connection import DriverRemoteConnectio
 
 class JanusServer:
 
-    def __init__(self, serverlocation):
-
-        self.serverlocation = serverlocation
-        self.connection = DriverRemoteConnection(serverlocation, 'g')
-        self.graph = Graph()
-        self.g = self.graph.traversal().withRemote(self.connection)
+    def __init__(self, serverlocation, howtorun):
+        
+        self.howtorun = howtorun
+        if howtorun == 0:
+            self.serverlocation = serverlocation
+            self.connection = DriverRemoteConnection(serverlocation, 'g')
+            self.graph = Graph()
+            self.g = self.graph.traversal().withRemote(self.connection)
 
     def insertMatch(self, nameid1, nameid2, user1state, firstlogin, infectiondate, curationdate, hlocation, vlocation, time, duration):
-    
+
+        if self.howtorun == 1:
+            return
         user1v = self.g.V().has('nameid', nameid1).toList()
         user2v = self.g.V().has('nameid', nameid2).toList()
         if not user1v:
@@ -41,10 +45,6 @@ class JanusServer:
 
 
 
-    def insertMatchFake(self, match):
-
-        print('Inserting the following match in the database:')
-        match.Print()
 
 
 
