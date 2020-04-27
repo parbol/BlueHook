@@ -1,8 +1,7 @@
 ###############################################################
 #Python-based application for handling an Appartment          #
 ###############################################################
-import numpy as np
-
+import random as random
 
 class Appartment:
 
@@ -16,23 +15,23 @@ class Appartment:
         self.lAppartment = lAppartment
         self.persons = []
         self.npersons = 0
-        self.nHotPoints = 1 + np.random.poisson(conf.nHotPoints, 1)[0]
+        self.nHotPoints = 1 + int(round(random.gammavariate(conf.nHotPoints, 1)))
         self.xhot = []
         self.yhot = []
         self.lengthOfHotPoint = conf.lengthOfHotPoint
         for i in range(0, self.nHotPoints):
-            self.xhot.append(np.random.uniform(self.x - self.lAppartment/2.0, self.x + self.lAppartment/2.0, 1)[0])
-            self.yhot.append(np.random.uniform(self.y - self.lAppartment/2.0, self.y + self.lAppartment/2.0, 1)[0])
+            self.xhot.append(random.uniform(self.x - self.lAppartment/2.0, self.x + self.lAppartment/2.0))
+            self.yhot.append(random.uniform(self.y - self.lAppartment/2.0, self.y + self.lAppartment/2.0))
 
     def GetRandomPosition(self):
 
-        hotpoint = np.random.randint(0, self.nHotPoints)
+        hotpoint = random.randint(0, self.nHotPoints-1)
         while True:
-            xv = np.random.normal(self.xhot[hotpoint], self.lengthOfHotPoint) 
+            xv = random.gauss(self.xhot[hotpoint], self.lengthOfHotPoint) 
             if abs(xv - self.x) < self.lAppartment/2.0:
                 break
         while True:
-            yv = np.random.normal(self.yhot[hotpoint], self.lengthOfHotPoint) 
+            yv = random.gauss(self.yhot[hotpoint], self.lengthOfHotPoint) 
             if abs(yv - self.y) < self.lAppartment/2.0:
                 break
         return [xv, yv]

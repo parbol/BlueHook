@@ -7,11 +7,10 @@ from CitySimulator.CityConf import CityConf
 
 from JanusAPI.JanusServer import JanusServer
 
-
-import numpy as np
 import math
 import itertools
 import random
+import numpy as np
 
 
 ###############################################################
@@ -20,7 +19,7 @@ class City:
 
     def __init__(self, confName, serverlocation, filename, seed, mode):
  
-        np.random.seed(seed)
+        random.seed(seed)
 
         self.janus = JanusServer(serverlocation, mode)
         self.filename = filename
@@ -102,13 +101,13 @@ class City:
             house = self.buildings[index] 
             for floor in house.floors:
                 for app in floor.appartments:
-                    npeople = np.random.poisson(self.conf.averagePopulationPerAppartment, 1)[0]
+                    npeople = int(round(random.gammavariate(self.conf.averagePopulationPerAppartment, 1)))
                     indexofpeople = []
                     for person in range(0, npeople):
                         personId = 'person_' + str(personindex)
-                        buildingworkplace = self.workBuildingIndexes[np.random.randint(0, self.conf.nWorkBuildings, 1)[0]]
-                        floorworkplace = np.random.randint(0, self.buildings[buildingworkplace].nFloors, 1)[0]
-                        appartmentworkplace = np.random.randint(0, self.buildings[buildingworkplace].floors[floorworkplace].nAppartments, 1)[0]
+                        buildingworkplace = self.workBuildingIndexes[random.randint(0, self.conf.nWorkBuildings-1)]
+                        floorworkplace = random.randint(0, self.buildings[buildingworkplace].nFloors-1)
+                        appartmentworkplace = random.randint(0, self.buildings[buildingworkplace].floors[floorworkplace].nAppartments-1)
                         person = Person(personId, personindex, house.building, floor.floor, app.appartment, buildingworkplace, floorworkplace, appartmentworkplace, self.conf) 
                         thepopulation.append(person)
                         indexofpeople.append(personindex) 
@@ -258,7 +257,7 @@ class City:
     ###################################################################################################
     ###################################################################################################
     def infect(self, person1, person2):
-        dice = np.random.uniform(0, 1, 1)[0]
+        dice = random.random()
         if dice < self.conf.instantInfectionProbability:
             #print('Infection between ' + str(person1) + ' ' + str(person2))
             if self.thePopulation[person1].health == 1:
@@ -329,7 +328,7 @@ class City:
         self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)  
         [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
         person.howlongcounter = 0
-        person.howlong = np.random.poisson(self.conf.timescalehome, 1)[0]
+        person.howlong = int(round(random.gammavariate(self.conf.timescalehome, 1)))
 
     ###################################################################################################
     ###################################################################################################
@@ -339,7 +338,7 @@ class City:
         if person.howlongcounter >= person.howlong:
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
             person.howlongcounter = 0
-            person.howlong = np.random.poisson(self.conf.timescalehome, 1)[0]
+            person.howlong = int(round(random.gammavariate(self.conf.timescalehome, 1)))
 
     ###################################################################################################
     ###################################################################################################
@@ -353,7 +352,7 @@ class City:
         self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)  
         [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
         person.howlongcounter = 0
-        person.howlong = np.random.poisson(self.conf.timescalework, 1)[0]
+        person.howlong = int(round(random.gammavariate(self.conf.timescalework, 1)))
 
     ###################################################################################################
     ###################################################################################################
@@ -363,7 +362,7 @@ class City:
         if person.howlongcounter >= person.howlong:
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
             person.howlongcounter = 0
-            person.howlong = np.random.poisson(self.conf.timescalework, 1)[0]
+            person.howlong = int(round(random.gammavariate(self.conf.timescalework, 1)))
 
     ###################################################################################################
     ###################################################################################################
@@ -371,15 +370,15 @@ class City:
 
         self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].removePerson(person.person)  
         person.lastposition = 2
-        person.leisurehowlong = np.random.poisson(self.conf.timescaleleisuresite, 1)[0]
+        person.leisurehowlong = int(round(random.gammavariate(self.conf.timescaleleisuresite, 1)))
         person.leisurehowlongcounter = 0
-        person.activeBuilding = self.buildings[self.leisureBuildingIndexes[np.random.randint(0, self.conf.nLeisureBuildings, 1)[0]]].building
+        person.activeBuilding = self.buildings[self.leisureBuildingIndexes[random.randint(0, self.conf.nLeisureBuildings-1)]].building
         person.activeFloor = 0
-        person.activeAppartment = np.random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments, 1)[0]
+        person.activeAppartment = random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments-1)
         self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)
         [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
         person.howlongcounter = 0
-        person.howlong = np.random.poisson(self.conf.timescaleleisure, 1)[0]
+        person.howlong = int(round(random.gammavariate(self.conf.timescaleleisure, 1)))
 
 
     ###################################################################################################
@@ -389,21 +388,21 @@ class City:
         person.howlongcounter = person.howlongcounter + 1
         person.leisurehowlongcounter = person.leisurehowlongcounter + 1
         if person.leisurehowlongcounter >= person.leisurehowlong:
-            person.leisurehowlong = np.random.poisson(self.conf.timescaleleisuresite, 1)[0]
+            person.leisurehowlong = int(round(random.gammavariate(self.conf.timescaleleisuresite, 1)))
             person.leisurehowlongcounter = 0 
             self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].removePerson(person.person)  
-            person.activeBuilding = self.buildings[self.leisureBuildingIndexes[np.random.randint(0, self.conf.nLeisureBuildings, 1)[0]]].building
+            person.activeBuilding = self.buildings[self.leisureBuildingIndexes[random.randint(0, self.conf.nLeisureBuildings-1)]].building
             person.activeFloor = 0
-            person.activeAppartment = np.random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments, 1)[0]
+            person.activeAppartment = random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments-1)
             self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
             person.howlongcounter = 0
-            person.howlong = np.random.poisson(self.conf.timescaleleisure, 1)[0]
+            person.howlong = int(round(random.gammavariate(self.conf.timescaleleisure, 1)))
  
         if person.howlongcounter >= person.howlong:
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[0].appartments[person.activeAppartment].GetRandomPosition()
             person.howlongcounter = 0
-            person.howlong = np.random.poisson(self.conf.timescaleleisure, 1)[0]
+            person.howlong = int(round(random.gammavariate(self.conf.timescaleleisure, 1)))
         
     ###################################################################################################
     ###################################################################################################

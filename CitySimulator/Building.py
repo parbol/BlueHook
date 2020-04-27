@@ -2,7 +2,8 @@
 #Python-based application for handling a building             #
 ###############################################################
 from CitySimulator.Floor import Floor
-import numpy as np
+
+import random as random
 
 class Building:
 
@@ -15,8 +16,8 @@ class Building:
         self.theType = theType
         self.nFloors = 1
         if theType != 2:
-            self.nFloors = 1 + np.random.poisson(conf.nFloorIndex, 1)[0]
-        self.nAppartmentsPerFloor = 1 + np.random.poisson(conf.nAppartmentIndex, 1)[0]
+            self.nFloors = 1 + int(round(random.gammavariate(conf.nFloorIndex, 1)))
+        self.nAppartmentsPerFloor = 1 + int(round(random.gammavariate(conf.nAppartmentIndex, 1)))
 
         self.floors = []
         for i in range(0, self.nFloors):

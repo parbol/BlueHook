@@ -1,7 +1,7 @@
 ###############################################################
 #Python-based application for handling a Person               #
 ###############################################################
-import numpy as np
+import random as random
 
 from JanusAPI.JanusServer import JanusServer
 
@@ -43,11 +43,11 @@ class Person:
         self.newHealth = 0
         self.quarantine = 0
         self.timeOfInfection = 0
-        self.timeToInfect = np.random.poisson(conf.timeToInfectLambda, 1)[0]
+        self.timeToInfect = int(round(random.gammavariate(conf.timeToInfectLambda, 1)))
         self.canInfect = 0
-        self.timeOfIncubation = self.timeToInfect + np.random.poisson(conf.incubationLambda, 1)[0]
-        self.timeOfCuration = self.timeOfIncubation + np.random.poisson(conf.curationLambda, 1)[0]
-        dice = np.random.uniform(0, 1, 1)[0]
+        self.timeOfIncubation = self.timeToInfect + int(round(random.gammavariate(conf.incubationLambda, 1)))
+        self.timeOfCuration = self.timeOfIncubation + int(round(random.gammavariate(conf.curationLambda, 1)))
+        dice = random.random()
         if dice < conf.noSymptomsProbability:
             self.hasSymptoms = 0
         else:
@@ -56,16 +56,16 @@ class Person:
         #Bluetooth 
         self.bluetoothmatches = []
         self.bluetoothOldMatches = []
-        self.bluetoothUpdate = np.random.randint(0, 24*60, 1)[0]
+        self.bluetoothUpdate = random.randint(0, 24*60-1)
 
     def setHours(self):
         self.oldTimeToGoHome = self.timeToGoHome
         while True:
-            self.timeToGoToWork = int(np.random.normal(480, 60, 1)[0]) 
+            self.timeToGoToWork = int(random.gauss(480, 60)) 
             if self.timeToGoToWork < 240 or self.timeToGoToWork > 660:
                 continue
-            self.timeToLeaveWork = (self.timeToGoToWork + int(np.random.normal(480, 60, 1)[0]))
-            self.timeToGoHome = (self.timeToLeaveWork + int(np.random.normal(240, 120, 1)[0]))
+            self.timeToLeaveWork = self.timeToGoToWork + int(random.gauss(480, 60))
+            self.timeToGoHome = self.timeToLeaveWork + int(random.gauss(240, 120))
             if self.timeToGoHome >= 1440:
                 continue
 
