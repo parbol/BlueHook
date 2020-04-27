@@ -67,6 +67,8 @@ class CityConf:
                 self.strategy = int(b)
             if a == 'numberOfTestsPerDay':
                 self.numberOfTestsPerDay = int(b)
+            if a == 'delayTestsStart':
+                self.delayTestsStart = int(b)
                                      
         self.instantInfectionProbability = 1.0 - math.pow(1 - self.infectionProbability, 1.0/30.0)
         self.lBlock = int(self.lBuilding + self.lStreet)

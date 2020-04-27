@@ -53,7 +53,6 @@ class Person:
         else:
             self.hasSymptoms = 1
         self.symptoms = 0
-        self.tested = 0
         #Bluetooth 
         self.bluetoothmatches = []
         self.bluetoothOldMatches = []

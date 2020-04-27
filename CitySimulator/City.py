@@ -131,7 +131,8 @@ class City:
     ###################################################################################################
     ###################################################################################################
     def runDay(self, day):
-        self.runTests(day,self.conf.strategy)
+        if day > self.conf.delayTestsStart:
+            self.runTests()
         for j in range(0, 24*60):
             self.runMinute()
             self.time = self.time + 1
@@ -173,15 +174,23 @@ class City:
    ###################################################################################################
    ###################################################################################################
 
-    def runTests(self,day,strategy):
+    def runTests(self):
         tested=self.tested
+        strategy=self.conf.strategy
+        if (strategy==0):
+            return 
         if (strategy==1):
             dailyTested=random.choices([x for x in range(self.conf.realPopulation) if x not in tested], k=self.conf.numberOfTestsPerDay)
-            for i in dailyTested:
-                citizen=self.thePopulation[i]
-                if citizen.health == 1:
-                    citizen.quarantine = 1
-                    self.tested.append(i)
+        if (strategy==2):
+            return
+        for i in dailyTested:
+            citizen=self.thePopulation[i]
+            if citizen.health == 1:
+                citizen.quarantine = 1
+                self.tested.append(i)
+            if (citizen.health == 0 and citizen.quarantine==1):
+                citizen.quarantine = 0
+                print("Acabamos de sacar a uno de la cuarentena :-D")
 
     ###################################################################################################
     ###################################################################################################
