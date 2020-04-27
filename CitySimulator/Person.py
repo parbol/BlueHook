@@ -38,7 +38,7 @@ class Person:
         self.howlong = 0
         self.leisurehowlongcounter = 0
         self.leisurehowlong = 0
-        #Susceptible, Infected, Cured
+        #Susceptible, Infected, Cured, Tested
         self.health = 0
         self.newHealth = 0
         self.quarantine = 0
@@ -53,6 +53,7 @@ class Person:
         else:
             self.hasSymptoms = 1
         self.symptoms = 0
+        self.tested = 0
         #Bluetooth 
         self.bluetoothmatches = []
         self.bluetoothOldMatches = []
@@ -115,6 +116,7 @@ class Person:
         print('Current state: ' + str(self.lastposition))
         print('Position is: (' + str(self.x) + ', ' + str(self.y) + ')')
         print('Health State is: ' + str(self.health) + ' can infect is: ' + str(self.canInfect))
+        print('Tested State is: ' + str(self.tested))
         print('Can have symptoms: ' + str(self.hasSymptoms) + ', has symptoms: ' + str(self.symptoms))
         print('Quarentine is: ' + str(self.quarantine))
         print('Time of infection: ' + str(self.timeOfInfection))

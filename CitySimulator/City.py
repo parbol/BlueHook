@@ -11,6 +11,8 @@ from JanusAPI.JanusServer import JanusServer
 import numpy as np
 import math
 import itertools
+import random
+
 
 ###############################################################
 ###############################################################
@@ -47,6 +49,7 @@ class City:
         self.healthy = []
         self.infected = []
         self.cured = []
+        self.tested=[]
         
         self.numberOfTestsDonePerDay = 0
         
@@ -118,7 +121,6 @@ class City:
     ###################################################################################################
     ###################################################################################################
     def runDays(self, days):
-        
         self.Print(1) 
         for i in range(0, days):
             self.checkStats(i)
@@ -129,11 +131,12 @@ class City:
     ###################################################################################################
     ###################################################################################################
     def runDay(self, day):
-
+        self.runTests(day,self.conf.strategy)
         for j in range(0, 24*60):
             self.runMinute()
             self.time = self.time + 1
-    
+
+	
     ###################################################################################################
     ###################################################################################################
     def runMinute(self):
@@ -166,6 +169,19 @@ class City:
         self.match()
         #print('Time: ' + str(self.time))
         #self.tracking(253)
+
+   ###################################################################################################
+   ###################################################################################################
+
+    def runTests(self,day,strategy):
+        tested=self.tested
+        if (strategy==1):
+            dailyTested=random.choices([x for x in range(self.conf.realPopulation) if x not in tested], k=self.conf.numberOfTestsPerDay)
+            for i in dailyTested:
+                citizen=self.thePopulation[i]
+                if citizen.health == 1:
+                    citizen.quarantine = 1
+                    self.tested.append(i)
 
     ###################################################################################################
     ###################################################################################################
@@ -283,13 +299,6 @@ class City:
                 #If passed infection time
                 elif self.time > i.timeToInfect:
                     i.canInfect = 1
-            if self.conf.strategy == 1:
-                if i.quarantine != 1 and self.numberOfTestsDonePerDay <= self.conf.numberOfTestsPerDay:
-                    dice = np.random.uniform(0, 1, 1)[0]
-                    if dice < self.conf.numberOfTestsPerDay/self.conf.realPopulation:
-                        if i.health == 1:
-                            i.quarantine = 1
-                        self.numberOfTestsDonePerDay = self.numberOfTestsDonePerDay + 1
             if i.health == 0:
                 self.nHealthy = self.nHealthy + 1
             elif i.health == 1:
