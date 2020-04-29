@@ -103,7 +103,7 @@ class City:
                 for app in floor.appartments:
                     npeople = int(round(random.gammavariate(self.conf.averagePopulationPerAppartment, 1)))
                     indexofpeople = []
-                    for person in range(0, npeople):
+                    for individual in range(0, npeople):
                         personId = 'person_' + str(personindex)
                         buildingworkplace = self.workBuildingIndexes[random.randint(0, self.conf.nWorkBuildings-1)]
                         floorworkplace = random.randint(0, self.buildings[buildingworkplace].nFloors-1)
@@ -113,7 +113,7 @@ class City:
                         indexofpeople.append(personindex) 
                         personindex = personindex + 1
                     app.assignPeople(indexofpeople)
-                    app.inhabitants=indexofpeople
+                    app.inhabitants=[x for x in indexofpeople]
         thepopulation[0].infect(self.time)
         return thepopulation   
 
@@ -174,7 +174,7 @@ class City:
    ###################################################################################################
    ###################################################################################################
 
-    def runTests(self,*args):
+    def runTests(self, family=None):
         alreadytested=self.tested
         strategy=self.conf.strategy
         if (strategy==0):
@@ -195,6 +195,13 @@ class City:
             if (citizen.health == 0 and citizen.quarantine==1):
                 citizen.quarantine = 0
                 print("Acabamos de sacar a uno de la cuarentena :-D")
+
+    def detectInfectedFamilies():
+        ibuild=i.residentialBuilding
+        ifloor=i.residentialFloor
+        iappart=i.residentialAppartment
+        #List with people living in the same house
+        family=self.buildings[i.residentialBuilding].floors[i.residentialFloor].appartments[i.residentialAppartment].inhabitants
 
     ###################################################################################################
     ###################################################################################################
@@ -297,7 +304,7 @@ class City:
             if i.health == 0:
                 i.health = i.newHealth
             #If infected
-            if i.health == 1:
+            if i.health == 1 :
                 #If cured
                 if self.time > i.timeOfCuration:
                     i.health = 2
@@ -306,17 +313,9 @@ class City:
                     i.canInfect = 0
                 #If presenting symptoms
                 elif self.time > i.timeOfIncubation:
-                    if i.hasSymptoms:
+                    if i.hasSymptoms and i.quarantine==0:
                         i.symptoms = 1
                         i.quarantine = 1
-                        ibuild=i.residentialBuilding
-                        ifloor=i.residentialFloor
-                        iappart=i.residentialAppartment
-                        #List with people living in the same house
-                        family=self.buildings[i.residentialBuilding].floors[i.residentialFloor].appartments[i.residentialAppartment].inhabitants
-                        #print("**********************************************************************")
-                        #print("The family", family)
-                        #print("El fulano ", i.person)
                 #If passed infection time
                 elif self.time > i.timeToInfect:
                     i.canInfect = 1
