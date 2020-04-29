@@ -131,8 +131,10 @@ class City:
     ###################################################################################################
     ###################################################################################################
     def runDay(self, day):
-        if day > self.conf.delayTestsStart:
-            self.runTests()
+        if self.conf.strategy == 1 and day > self.conf.delayTestsStart:
+            self.runTests(day)
+        elif self.conf.strategy!=1:
+            self.runTests(day)
         for j in range(0, 24*60):
             self.runMinute()
             self.time = self.time + 1
@@ -174,34 +176,73 @@ class City:
    ###################################################################################################
    ###################################################################################################
 
-    def runTests(self, family=None):
+    def suspiciousFamilies(self):
+        totalSuspiciousFamilies=[]
+        #For each person
+        for i in self.thePopulation:
+            suspiciousFamily=[]
+            if i.symptoms==1:
+                ibuild=i.residentialBuilding
+                ifloor=i.residentialFloor
+                iappart=i.residentialAppartment
+                #List with people living in the same house
+                suspiciousFamily=self.buildings[i.residentialBuilding].floors[i.residentialFloor].appartments[i.residentialAppartment].inhabitants 
+                suspiciousFamily.remove(i.person)
+            totalSuspiciousFamilies+=suspiciousFamily
+        return(set(totalSuspiciousFamilies))
+
+
+    def suspiciousBluetoothMatches(self):
+        totalSuspiciousMatches=[]
+        for i in self.thePopulation:
+            suspiciousMatches=[]
+            if i.symptoms==1:
+            if i.symptoms==1 and round((self.time - i.timeOfQuarantine)/(60*24)) < self.conf.bluetoothTimeRange:
+                #List with people bluetooth matched
+                for j in i.bluetoothOldMatches:
+                    if round((self.time - j[3])/(60*24)) < self.conf.bluetoothTimeRange and self.thePopulation[j[0]].symptoms==0: 
+                        suspiciousMatches.append(j[0])
+            totalSuspiciousMatches+=suspiciousMatches
+        return(set(totalSuspiciousMatches))
+
+
+
+    def runTests(self,day):
         alreadytested=self.tested
         strategy=self.conf.strategy
+        #No testing - strategy 0
         if (strategy==0):
             return 
+
+        #Random testing - strategy 1
         if (strategy==1):
             notYetTested=[x for x in range(self.conf.realPopulation) if x not in alreadytested and self.thePopulation[x].quarantine!=1]
-            if (len(notYetTested) >= self.conf.numberOfTestsPerDay):
-                dailyTested=random.sample(notYetTested, k=self.conf.numberOfTestsPerDay)
-            else:
-                dailyTested=notYetTested
+
+        #Testing families - strategy 2
         if (strategy==2):
-            return
+            notYetTested=[x for x in self.suspiciousFamilies() if x not in alreadytested and self.thePopulation[x].quarantine!=1]
+        #Testing bluetooth matches - strategy 3
+        if (strategy ==3):
+            notYetTested=[x for x in self.suspiciousBluetoothMatches() if x not in alreadytested and self.thePopulation[x].quarantine!=1]
+
+        #Check if the total numbers of test is bigger than the population to be tested
+        if (len(notYetTested) >= self.conf.numberOfTestsPerDay):
+            dailyTested=random.sample(notYetTested, k=self.conf.numberOfTestsPerDay)
+        else:
+            dailyTested=notYetTested
+
         for i in dailyTested:
             citizen=self.thePopulation[i]
             if citizen.health == 1:
                 citizen.quarantine = 1
+                citizen.positiveTested=1
                 self.tested.append(i)
             if (citizen.health == 0 and citizen.quarantine==1):
                 citizen.quarantine = 0
                 print("Acabamos de sacar a uno de la cuarentena :-D")
 
-    def detectInfectedFamilies():
-        ibuild=i.residentialBuilding
-        ifloor=i.residentialFloor
-        iappart=i.residentialAppartment
-        #List with people living in the same house
-        family=self.buildings[i.residentialBuilding].floors[i.residentialFloor].appartments[i.residentialAppartment].inhabitants
+
+
 
     ###################################################################################################
     ###################################################################################################
@@ -313,9 +354,12 @@ class City:
                     i.canInfect = 0
                 #If presenting symptoms
                 elif self.time > i.timeOfIncubation:
-                    if i.hasSymptoms and i.quarantine==0:
+                    if i.hasSymptoms:
                         i.symptoms = 1
                         i.quarantine = 1
+                        if i.timeOfQuarantine==0:
+                            i.timeOfQuarantine=self.time 
+                        
                 #If passed infection time
                 elif self.time > i.timeToInfect:
                     i.canInfect = 1

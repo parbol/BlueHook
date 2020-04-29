@@ -39,9 +39,11 @@ class Person:
         self.leisurehowlongcounter = 0
         self.leisurehowlong = 0
         #Susceptible, Infected, Cured, Tested
+        self.positiveTested=0
         self.health = 0
         self.newHealth = 0
         self.quarantine = 0
+        self.timeOfQuarantine=0
         self.timeOfInfection = 0
         self.timeToInfect = int(round(random.gammavariate(conf.timeToInfectLambda, 1)))
         self.canInfect = 0
@@ -53,6 +55,7 @@ class Person:
         else:
             self.hasSymptoms = 1
         self.symptoms = 0
+        
         #Bluetooth 
         self.bluetoothmatches = []
         self.bluetoothOldMatches = []
