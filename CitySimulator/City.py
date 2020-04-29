@@ -191,6 +191,9 @@ class City:
             totalSuspiciousFamilies+=suspiciousFamily
         return(set(totalSuspiciousFamilies))
 
+   ###################################################################################################
+   ###################################################################################################
+
 
     def suspiciousBluetoothMatches(self):
         totalSuspiciousMatches=[]
@@ -205,6 +208,8 @@ class City:
             totalSuspiciousMatches+=suspiciousMatches
         return(set(totalSuspiciousMatches))
 
+   ###################################################################################################
+   ###################################################################################################
 
 
     def runTests(self,day):
@@ -237,9 +242,6 @@ class City:
                 citizen.quarantine = 1
                 citizen.positiveTested=1
                 self.tested.append(i)
-            if (citizen.health == 0 and citizen.quarantine==1):
-                citizen.quarantine = 0
-                print("Acabamos de sacar a uno de la cuarentena :-D")
 
 
 
