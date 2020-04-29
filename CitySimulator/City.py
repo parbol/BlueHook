@@ -113,6 +113,7 @@ class City:
                         indexofpeople.append(personindex) 
                         personindex = personindex + 1
                     app.assignPeople(indexofpeople)
+                    app.inhabitants=indexofpeople
         thepopulation[0].infect(self.time)
         return thepopulation   
 
@@ -173,13 +174,17 @@ class City:
    ###################################################################################################
    ###################################################################################################
 
-    def runTests(self):
-        tested=self.tested
+    def runTests(self,*args):
+        alreadytested=self.tested
         strategy=self.conf.strategy
         if (strategy==0):
             return 
         if (strategy==1):
-            dailyTested=random.choices([x for x in range(self.conf.realPopulation) if x not in tested], k=self.conf.numberOfTestsPerDay)
+            notYetTested=[x for x in range(self.conf.realPopulation) if x not in alreadytested and self.thePopulation[x].quarantine!=1]
+            if (len(notYetTested) >= self.conf.numberOfTestsPerDay):
+                dailyTested=random.sample(notYetTested, k=self.conf.numberOfTestsPerDay)
+            else:
+                dailyTested=notYetTested
         if (strategy==2):
             return
         for i in dailyTested:
@@ -304,6 +309,14 @@ class City:
                     if i.hasSymptoms:
                         i.symptoms = 1
                         i.quarantine = 1
+                        ibuild=i.residentialBuilding
+                        ifloor=i.residentialFloor
+                        iappart=i.residentialAppartment
+                        #List with people living in the same house
+                        family=self.buildings[i.residentialBuilding].floors[i.residentialFloor].appartments[i.residentialAppartment].inhabitants
+                        #print("**********************************************************************")
+                        #print("The family", family)
+                        #print("El fulano ", i.person)
                 #If passed infection time
                 elif self.time > i.timeToInfect:
                     i.canInfect = 1

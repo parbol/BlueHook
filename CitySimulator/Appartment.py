@@ -15,6 +15,7 @@ class Appartment:
         self.lAppartment = lAppartment
         self.persons = []
         self.npersons = 0
+        self.inhabitants = []
         self.nHotPoints = 1 + int(round(random.gammavariate(conf.nHotPoints, 1)))
         self.xhot = []
         self.yhot = []
