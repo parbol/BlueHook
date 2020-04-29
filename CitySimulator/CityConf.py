@@ -67,8 +67,6 @@ class CityConf:
                 self.strategy = int(b)
             if a == 'numberOfTestsPerDay':
                 self.numberOfTestsPerDay = int(b)
-            if a == 'delayTestsStart':
-                self.delayTestsStart = int(b)
             if a == 'bluetoothTimeRange':
                 self.bluetoothTimeRange = int(b)
                                      

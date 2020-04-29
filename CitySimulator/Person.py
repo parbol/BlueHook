@@ -43,7 +43,6 @@ class Person:
         self.health = 0
         self.newHealth = 0
         self.quarantine = 0
-        self.timeOfQuarantine=0
         self.timeOfInfection = 0
         self.timeToInfect = int(round(random.gammavariate(conf.timeToInfectLambda, 1)))
         self.canInfect = 0
