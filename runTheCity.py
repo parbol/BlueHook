@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
 
     city = City(options.config, 'ws://localhost:8182/gremlin', options.output, options.seed, options.mode)
-    city.runDays(40)
+    city.runDays(20)
 
 
 

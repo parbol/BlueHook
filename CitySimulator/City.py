@@ -167,8 +167,8 @@ class City:
             if theTime == person.bluetoothUpdate:
                 person.updateBluetooth(self.janus)
         self.match()
-        #print('Time: ' + str(self.time))
-        #self.tracking(253)
+        #print('Time: ' + str(self.time) + ' Day: ' + str(int(self.time/(24*60))) + ' Hour: ' + str(self.getHour()))
+        #self.tracking(34)
 
    ###################################################################################################
    ###################################################################################################
@@ -233,6 +233,7 @@ class City:
             dailyTested=notYetTested
 
         for i in dailyTested:
+            #self.thePopulation[i].Print()
             citizen=self.thePopulation[i]
             if citizen.health == 1:
                 citizen.quarantine = 1
@@ -507,7 +508,7 @@ class City:
     def getHour(self):
 
         days = math.floor(self.time / (24.0*60.0))
-        newtime = self.time - days * 24
+        newtime = self.time - days * (24.0*60)
         hour = math.floor(newtime / 60)
         return hour
 

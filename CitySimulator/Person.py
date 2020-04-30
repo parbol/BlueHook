@@ -66,8 +66,8 @@ class Person:
             self.timeToGoToWork = int(random.gauss(480, 60)) 
             if self.timeToGoToWork < 240 or self.timeToGoToWork > 660:
                 continue
-            self.timeToLeaveWork = self.timeToGoToWork + int(random.gauss(480, 60))
-            self.timeToGoHome = self.timeToLeaveWork + int(random.gauss(240, 120))
+            self.timeToLeaveWork = self.timeToGoToWork + abs(int(random.gauss(480, 60)))
+            self.timeToGoHome = self.timeToLeaveWork + abs(int(random.gauss(240, 120)))
             if self.timeToGoHome >= 1440:
                 continue
 
@@ -117,7 +117,6 @@ class Person:
         print('Current state: ' + str(self.lastposition))
         print('Position is: (' + str(self.x) + ', ' + str(self.y) + ')')
         print('Health State is: ' + str(self.health) + ' can infect is: ' + str(self.canInfect))
-        print('Tested State is: ' + str(self.tested))
         print('Can have symptoms: ' + str(self.hasSymptoms) + ', has symptoms: ' + str(self.symptoms))
         print('Quarentine is: ' + str(self.quarantine))
         print('Time of infection: ' + str(self.timeOfInfection))
