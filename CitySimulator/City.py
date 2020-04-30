@@ -43,14 +43,14 @@ class City:
         self.nHealthy = 0
         self.nInfected = 0
         self.nCured = 0
-        
+        self.nQuarantine=0
+
         self.days = []
         self.healthy = []
         self.infected = []
         self.cured = []
         self.tested=[]
-        
-        self.numberOfTestsDonePerDay = 0
+        self.nquarantine=[]
         
 		#Creating the population
         self.thePopulation = self.PopulationBuilder()
@@ -125,15 +125,12 @@ class City:
         for i in range(0, days):
             self.checkStats(i)
             self.runDay(i)
-            self.numberOfTestsDonePerDay = 0
         self.Save()
 
     ###################################################################################################
     ###################################################################################################
     def runDay(self, day):
-        if self.conf.strategy == 1 and day > self.conf.delayTestsStart:
-            self.runTests(day)
-        elif self.conf.strategy!=1:
+        if self.nQuarantine > 0:
             self.runTests(day)
         for j in range(0, 24*60):
             self.runMinute()
@@ -181,34 +178,37 @@ class City:
         #For each person
         for i in self.thePopulation:
             suspiciousFamily=[]
-            if i.symptoms==1:
+            if i.quarantine==1:
                 ibuild=i.residentialBuilding
                 ifloor=i.residentialFloor
                 iappart=i.residentialAppartment
                 #List with people living in the same house
-                suspiciousFamily=self.buildings[i.residentialBuilding].floors[i.residentialFloor].appartments[i.residentialAppartment].inhabitants 
-                suspiciousFamily.remove(i.person)
+                suspiciousFamily=[x for x in self.buildings[i.residentialBuilding].floors[i.residentialFloor].appartments[i.residentialAppartment].inhabitants if x!=i.person]
             totalSuspiciousFamilies+=suspiciousFamily
         return(set(totalSuspiciousFamilies))
+
+   ###################################################################################################
+   ###################################################################################################
 
 
     def suspiciousBluetoothMatches(self):
         totalSuspiciousMatches=[]
         for i in self.thePopulation:
             suspiciousMatches=[]
-            if i.symptoms==1:
-            if i.symptoms==1 and round((self.time - i.timeOfQuarantine)/(60*24)) < self.conf.bluetoothTimeRange:
+            if i.quarantine==1:
                 #List with people bluetooth matched
                 for j in i.bluetoothOldMatches:
-                    if round((self.time - j[3])/(60*24)) < self.conf.bluetoothTimeRange and self.thePopulation[j[0]].symptoms==0: 
+                    if round((self.time - j[3])/(60*24)) < self.conf.bluetoothTimeRange and self.thePopulation[j[0]].quarantine==0: 
                         suspiciousMatches.append(j[0])
             totalSuspiciousMatches+=suspiciousMatches
         return(set(totalSuspiciousMatches))
 
+   ###################################################################################################
+   ###################################################################################################
 
 
     def runTests(self,day):
-        alreadytested=self.tested
+        
         strategy=self.conf.strategy
         #No testing - strategy 0
         if (strategy==0):
@@ -216,14 +216,15 @@ class City:
 
         #Random testing - strategy 1
         if (strategy==1):
-            notYetTested=[x for x in range(self.conf.realPopulation) if x not in alreadytested and self.thePopulation[x].quarantine!=1]
+            notYetTested=[x for x in range(self.conf.realPopulation) if x not in self.tested and self.thePopulation[x].quarantine!=1]
 
         #Testing families - strategy 2
         if (strategy==2):
-            notYetTested=[x for x in self.suspiciousFamilies() if x not in alreadytested and self.thePopulation[x].quarantine!=1]
+            notYetTested=[x for x in self.suspiciousFamilies() if x not in self.tested and self.thePopulation[x].quarantine!=1]
+
         #Testing bluetooth matches - strategy 3
         if (strategy ==3):
-            notYetTested=[x for x in self.suspiciousBluetoothMatches() if x not in alreadytested and self.thePopulation[x].quarantine!=1]
+            notYetTested=[x for x in self.suspiciousBluetoothMatches() if x not in self.tested]
 
         #Check if the total numbers of test is bigger than the population to be tested
         if (len(notYetTested) >= self.conf.numberOfTestsPerDay):
@@ -235,11 +236,9 @@ class City:
             citizen=self.thePopulation[i]
             if citizen.health == 1:
                 citizen.quarantine = 1
+                self.nQuarantine = self.nQuarantine + 1
                 citizen.positiveTested=1
                 self.tested.append(i)
-            if (citizen.health == 0 and citizen.quarantine==1):
-                citizen.quarantine = 0
-                print("Acabamos de sacar a uno de la cuarentena :-D")
 
 
 
@@ -338,6 +337,7 @@ class City:
 
         self.nHealthy = 0
         self.nInfected = 0
+        self.nQuarantine= 0
         self.nCured = 0
         #For each person
         for i in self.thePopulation:
@@ -357,9 +357,7 @@ class City:
                     if i.hasSymptoms:
                         i.symptoms = 1
                         i.quarantine = 1
-                        if i.timeOfQuarantine==0:
-                            i.timeOfQuarantine=self.time 
-                        
+                        self.nQuarantine = self.nQuarantine + 1
                 #If passed infection time
                 elif self.time > i.timeToInfect:
                     i.canInfect = 1
@@ -478,12 +476,12 @@ class City:
 
         print('----------------Stats--------------------')
         print('Day: ', str(day))
-        print('Number of healthy people: ' + str(self.nHealthy) + ', number of infected people: ' + str(self.nInfected) + ', number of cured people: ' + str(self.nCured))  
+        print('Number of healthy people: ' + str(self.nHealthy) + ', number of infected people: ' + str(self.nInfected) + ', number of cured people: ' + str(self.nCured) + " and  number of people in quarantine: ", self.nQuarantine)  
         self.days.append(day)
         self.healthy.append(self.nHealthy)
         self.infected.append(self.nInfected)
         self.cured.append(self.nCured)
-
+        self.nquarantine.append(self.nQuarantine)
     ####################################################################################################
     ###################################################################################################
     def Save(self):
