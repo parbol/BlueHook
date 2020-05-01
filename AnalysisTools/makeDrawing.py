@@ -19,6 +19,33 @@ def getValues(f):
     array = np.genfromtxt(f, delimiter=',')
     return array
 
+def makeDiffHistogram():
+    #parser = OptionParser(usage="%prog --help")
+    #(options, args) = parser.parse_args()
+    diffMaxl = []
+    diffDayl = []
+    tag_numberoftests = ['_100']
+    for tnumber in tag_numberoftests:
+        for seed in range(0, 100):
+            filenamestrat0 = 'output_strategy0' + tnumber + '_seed' + str(seed) + '.csv' 
+            filenamestrat1 = 'output_strategy1' + tnumber + '_seed' + str(seed) + '.csv' 
+            val0 = getMaxValues(filenamestrat0) 
+            val1 = getMaxValues(filenamestrat1) 
+            diffMax = val0[0] - val1[0]
+            diffDay = val0[1] - val1[1]
+            diffMaxl.append(diffMax)
+            diffDayl.append(diffDay)
+    maxl = np.asarray(diffMaxl)
+    dayl = np.asarray(diffDayl)
+
+    plt.subplot(1,2,1)
+    plt.hist(maxl, bins=20, range=(-0.1, 0.1))
+    plt.axvline(maxl.mean(), color='k')
+    plt.subplot(1,2,2)
+    plt.hist(dayl, bins=10, range=(-5, 5))
+    plt.axvline(dayl.mean(), color='k')
+    plt.show()
+
 
 def makeBrazilianPlot():
     test=[]
