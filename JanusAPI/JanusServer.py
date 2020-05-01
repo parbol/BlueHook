@@ -3,10 +3,6 @@
 #Requires the gremlinpython API                               #
 #sudo pip install gremlinpython==3.4.6                        #
 ###############################################################
-from gremlin_python import statics
-from gremlin_python.structure.graph import Graph
-from gremlin_python.process.graph_traversal import __
-from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 
 
 
@@ -17,6 +13,10 @@ class JanusServer:
         
         self.howtorun = howtorun
         if howtorun == 0:
+            from gremlin_python import statics
+            from gremlin_python.structure.graph import Graph
+            from gremlin_python.process.graph_traversal import __
+            from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
             self.serverlocation = serverlocation
             self.connection = DriverRemoteConnection(serverlocation, 'g')
             self.graph = Graph()
