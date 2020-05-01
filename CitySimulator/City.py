@@ -52,7 +52,7 @@ class City:
         self.tested=[]
         self.nquarantine=[]
         
-		#Creating the population
+	#Creating the population
         self.thePopulation = self.PopulationBuilder()
         self.conf.loadPopulationDetails(len(self.thePopulation))
         self.update()
@@ -123,13 +123,13 @@ class City:
     def runDays(self, days):
         self.Print(1) 
         for i in range(0, days):
-            self.checkStats(i)
             self.runDay(i)
         self.Save()
 
     ###################################################################################################
     ###################################################################################################
     def runDay(self, day):
+        self.checkStats(day)
         if self.nQuarantine > 0:
             self.runTests(day)
         for j in range(0, 24*60):
@@ -167,6 +167,8 @@ class City:
             if theTime == person.bluetoothUpdate:
                 person.updateBluetooth(self.janus)
         self.match()
+        #Update the clinical state of everyone
+        self.update()
         #print('Time: ' + str(self.time) + ' Day: ' + str(int(self.time/(24*60))) + ' Hour: ' + str(self.getHour()))
         #self.tracking(34)
 
@@ -179,9 +181,11 @@ class City:
         for i in self.thePopulation:
             suspiciousFamily=[]
             if i.quarantine==1:
-                ibuild=i.residentialBuilding
-                ifloor=i.residentialFloor
-                iappart=i.residentialAppartment
+                #print('Person ' + str(i.person) + ' in quarantine')
+                #ibuild=i.residentialBuilding
+                #ifloor=i.residentialFloor
+                #iappart=i.residentialAppartment
+                #print('With this person live: ', self.buildings[ibuild].floors[ifloor].appartments[iappart].inhabitants)
                 #List with people living in the same house
                 suspiciousFamily=[x for x in self.buildings[i.residentialBuilding].floors[i.residentialFloor].appartments[i.residentialAppartment].inhabitants if x!=i.person]
             totalSuspiciousFamilies+=suspiciousFamily
@@ -197,8 +201,12 @@ class City:
             suspiciousMatches=[]
             if i.quarantine==1:
                 #List with people bluetooth matched
+                #print('Person ' + str(i.person) + ' in quarantine')
+                #print('Contacts of person are: ')
+                #print(i.bluetoothOldMatches)
                 for j in i.bluetoothOldMatches:
-                    if round((self.time - j[3])/(60*24)) < self.conf.bluetoothTimeRange and self.thePopulation[j[0]].quarantine==0: 
+                    #print('Diff Time: ', self.time - j[3], ' with person ', j[0])
+                    if (self.time - j[3]) < self.conf.bluetoothTimeRange and self.thePopulation[j[0]].quarantine==0: 
                         suspiciousMatches.append(j[0])
             totalSuspiciousMatches+=suspiciousMatches
         return(set(totalSuspiciousMatches))
@@ -208,7 +216,7 @@ class City:
 
 
     def runTests(self,day):
-        
+       
         strategy=self.conf.strategy
         #No testing - strategy 0
         if (strategy==0):
@@ -223,23 +231,34 @@ class City:
             notYetTested=[x for x in self.suspiciousFamilies() if x not in self.tested and self.thePopulation[x].quarantine!=1]
 
         #Testing bluetooth matches - strategy 3
-        if (strategy ==3):
+        if (strategy ==3 or strategy == 4):
             notYetTested=[x for x in self.suspiciousBluetoothMatches() if x not in self.tested]
+            #print('Testing: ')
+            #print(notYetTested)
 
         #Check if the total numbers of test is bigger than the population to be tested
-        if (len(notYetTested) >= self.conf.numberOfTestsPerDay):
-            dailyTested=random.sample(notYetTested, k=self.conf.numberOfTestsPerDay)
+        if strategy < 4:
+            if len(notYetTested) >= self.conf.numberOfTestsPerDay:
+                dailyTested=random.sample(notYetTested, k=self.conf.numberOfTestsPerDay)
+            else:
+                dailyTested=notYetTested
+
+            #print(dailyTested)
+            for i in dailyTested:
+                #print('Testing: ', i)
+                #resb = self.thePopulation[i].residentialBuilding
+                #resf = self.thePopulation[i].residentialFloor
+                #resa = self.thePopulation[i].residentialAppartment
+                citizen=self.thePopulation[i]
+                if citizen.health == 1:
+                    citizen.quarantine = 1
+                    citizen.positiveTested=1
+                    self.tested.append(i)
         else:
             dailyTested=notYetTested
-
-        for i in dailyTested:
-            #self.thePopulation[i].Print()
-            citizen=self.thePopulation[i]
-            if citizen.health == 1:
+            for i in dailyTested:
+                citizen=self.thePopulation[i]
                 citizen.quarantine = 1
-                self.nQuarantine = self.nQuarantine + 1
-                citizen.positiveTested=1
-                self.tested.append(i)
 
 
 
@@ -280,10 +299,24 @@ class City:
                     listOfPersons = app.persons
                     if len(listOfPersons) == 0:
                         continue
-                    if app.floor == 0 and building.nFloors > 1:
-                        listOfPersons = listOfPersons + building.floors[1].appartments[app.appartment].persons
-                    elif app.floor == building.nFloors - 1 and building.nFloors > 1:
-                        listOfPersons = listOfPersons + building.floors[building.nFloors - 1].appartments[app.appartment].persons
+                    #Catching the upper and lower appartmens (if any)
+                    if building.nFloors > 1:
+                        if app.floor == 0:
+                            listOfPersons = listOfPersons + building.floors[1].appartments[app.appartment].persons
+                        elif app.floor == building.nFloors - 1:
+                            listOfPersons = listOfPersons + building.floors[building.nFloors - 2].appartments[app.appartment].persons
+                        else:
+                            listOfPersons = listOfPersons + building.floors[app.floor - 1].appartments[app.appartment].persons + building.floors[app.floor + 1].appartments[app.appartment].persons
+                    #Catching the sides (if any)
+                    if floor.nAppartments > 1:
+                        for s in [-1, 0, 1]:
+                            for t in [-1, 0, 1]:
+                                if s == 0 and t == 0:
+                                    continue
+                                k = floor.existsApp(app.i + s, app.j + t)
+                                if k >= 0:
+                                    listOfPersons = listOfPersons + building.floors[app.floor].appartments[k].persons 
+
                     for i in itertools.product(listOfPersons, listOfPersons):
                         if i[0] <= i[1]:
                             continue
@@ -304,8 +337,6 @@ class City:
         #Going for bluetooth contact
         for i in matchBluetooth:
             self.bluetooth(i[0], i[1])
-        #Update the clinical state of everyone
-        self.update()
                         
     ###################################################################################################
     ###################################################################################################
@@ -315,13 +346,17 @@ class City:
             #print('Infection between ' + str(person1) + ' ' + str(person2))
             if self.thePopulation[person1].health == 1:
                 self.thePopulation[person2].infect(self.time)
+                #print('Person: ' + str(person1) + ' infected person: ' + str(person2))
             else:
                 self.thePopulation[person1].infect(self.time)
+                #print('Person: ' + str(person2) + ' infected person: ' + str(person1))
 
     ###################################################################################################
     ###################################################################################################
     def bluetooth(self, person1, person2):
-    
+   
+        if self.thePopulation[person1].quarantine == 1 or self.thePopulation[person2].quarantine == 1:
+            return
         self.thePopulation[person1].bluetoothMatch(person2, self.thePopulation[person1].x, self.thePopulation[person1].y, self.time)
         self.thePopulation[person2].bluetoothMatch(person1, self.thePopulation[person2].x, self.thePopulation[person2].y, self.time)
 
@@ -336,10 +371,6 @@ class City:
     ###################################################################################################
     def update(self):
 
-        self.nHealthy = 0
-        self.nInfected = 0
-        self.nQuarantine= 0
-        self.nCured = 0
         #For each person
         for i in self.thePopulation:
             #If healthy -> update
@@ -355,21 +386,13 @@ class City:
                     i.canInfect = 0
                 #If presenting symptoms
                 elif self.time > i.timeOfIncubation:
-                    if i.hasSymptoms:
+                    if i.hasSymptoms and not i.symptoms:
                         i.symptoms = 1
                         i.quarantine = 1
-                        self.nQuarantine = self.nQuarantine + 1
                 #If passed infection time
                 elif self.time > i.timeToInfect:
                     i.canInfect = 1
-            if i.health == 0:
-                self.nHealthy = self.nHealthy + 1
-            elif i.health == 1:
-                self.nInfected = self.nInfected + 1
-            else:
-                self.nCured = self.nCured + 1
-
-
+            
     ###################################################################################################
     ###################################################################################################
     def goHome(self, person):
@@ -475,6 +498,20 @@ class City:
     ###################################################################################################
     def checkStats(self, day):
 
+        self.nQuarantine = 0
+        self.nHealthy = 0
+        self.nCured = 0
+        self.nInfected = 0
+        for i in self.thePopulation:
+            if i.quarantine == 1:
+                self.nQuarantine = self.nQuarantine + 1
+            if i.health == 0:
+                self.nHealthy = self.nHealthy + 1
+            elif i.health == 1:
+                self.nInfected = self.nInfected + 1
+            else:
+                self.nCured = self.nCured + 1
+
         print('----------------Stats--------------------')
         print('Day: ', str(day))
         print('Number of healthy people: ' + str(self.nHealthy) + ', number of infected people: ' + str(self.nInfected) + ', number of cured people: ' + str(self.nCured) + " and  number of people in quarantine: ", self.nQuarantine)  
@@ -487,7 +524,7 @@ class City:
     ###################################################################################################
     def Save(self):
 
-        thelist = [self.days, self.healthy, self.infected, self.cured]
+        thelist = [self.days, self.healthy, self.infected, self.cured, self.nquarantine]
         nparr = np.asarray(thelist)
         np.savetxt(self.filename, nparr, delimiter=',')
 

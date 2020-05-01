@@ -5,13 +5,15 @@ import random as random
 
 class Appartment:
 
-    def __init__(self, buildingId, floorId, appId, conf, x, y, lAppartment):
+    def __init__(self, buildingId, floorId, appId, conf, x, y, lAppartment, i, j):
 
         self.building = buildingId
         self.floor = floorId
         self.appartment = appId
         self.x = x
         self.y = y
+        self.i = i
+        self.j = j
         self.lAppartment = lAppartment
         self.persons = []
         self.npersons = 0
@@ -23,6 +25,7 @@ class Appartment:
         for i in range(0, self.nHotPoints):
             self.xhot.append(random.uniform(self.x - self.lAppartment/2.0, self.x + self.lAppartment/2.0))
             self.yhot.append(random.uniform(self.y - self.lAppartment/2.0, self.y + self.lAppartment/2.0))
+
 
     def GetRandomPosition(self):
 

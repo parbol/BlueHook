@@ -44,15 +44,15 @@ class CityConf:
             if a == 'timescalehome':
                 self.timescalehome = int(b)
             if a == 'timescalework':
-                self.timescalework = float(b)
+                self.timescalework = int(b)
             if a == 'timescaleleisure':
-                self.timescaleleisure = float(b)
+                self.timescaleleisure = int(b)
             if a == 'timescaleleisuresite':
-                self.timescaleleisuresite = float(b)
+                self.timescaleleisuresite = int(b)
             if a == 'curationLambda':
-                self.curationLambda = float(b) * 24.0 * 60.0
+                self.curationLambda = int(b) * 24 * 60
             if a == 'incubationLambda':
-                self.incubationLambda = float(b) * 24.0 * 60.0
+                self.incubationLambda = int(b) * 24 * 60
             if a == 'bluetoothRadius':
                 self.bluetoothRadius = float(b)
             if a == 'infectionRadius':
@@ -60,7 +60,7 @@ class CityConf:
             if a == 'infectionProbability':
                 self.infectionProbability = float(b)
             if a == 'timeToInfectLambda':
-                self.timeToInfectLambda = float(b) * 24.0 * 60.0
+                self.timeToInfectLambda = int(b) * 24 * 60
             if a == 'noSymptomsProbability':
                 self.noSymptomsProbability = float(b)
             if a == 'strategy':
@@ -68,7 +68,7 @@ class CityConf:
             if a == 'numberOfTestsPerDay':
                 self.numberOfTestsPerDay = int(b)
             if a == 'bluetoothTimeRange':
-                self.bluetoothTimeRange = int(b)
+                self.bluetoothTimeRange = int(b) * 24 * 60
                                      
         self.instantInfectionProbability = 1.0 - math.pow(1 - self.infectionProbability, 1.0/30.0)
         self.lBlock = int(self.lBuilding + self.lStreet)

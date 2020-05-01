@@ -24,8 +24,20 @@ class Floor:
                 index = i * self.nAppartmentsPerSide + j
                 theX = (x - self.lFloor / 2.0) + i * self.lAppartment + self.lAppartment/2.0
                 theY = (y - self.lFloor / 2.0) + j * self.lAppartment + self.lAppartment/2.0
-                app = Appartment(self.building, self.floor, index, conf, theX, theY, self.lAppartment)
+                app = Appartment(self.building, self.floor, index, conf, theX, theY, self.lAppartment, i, j)
                 self.appartments.append(app)
+
+    def GetAppIndex(self, i, j):
+
+        return i * self.nAppartmentsPerSide + j
+
+    def existsApp(self, i, j):
+
+        if i < 0 or i > self.nAppartmentsPerSide-1:
+            return -1
+        if j < 0 or j > self.nAppartmentsPerSide-1:
+            return -1
+        return self.GetAppIndex(i, j)              
 
     def Print(self):
 
