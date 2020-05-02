@@ -59,7 +59,7 @@ class Person:
         self.bluetoothmatches = []
         self.bluetoothOldMatches = []
         self.bluetoothUpdate = random.randint(0, 24*60-1)
-   
+        self.bluetoothOn= 0
     def setHours(self):
         self.oldTimeToGoHome = self.timeToGoHome
         while True:
