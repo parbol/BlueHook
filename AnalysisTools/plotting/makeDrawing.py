@@ -19,16 +19,17 @@ def getValues(f):
     array = np.genfromtxt(f, delimiter=',')
     return array
 
-def makeDiffHistogram():
+def makeDiffHistogram(dir0, dir1):
     #parser = OptionParser(usage="%prog --help")
     #(options, args) = parser.parse_args()
     diffMaxl = []
     diffDayl = []
+
     tag_numberoftests = ['_100']
     for tnumber in tag_numberoftests:
-        for seed in range(0, 100):
-            filenamestrat0 = 'output_strategy0' + tnumber + '_seed' + str(seed) + '.csv' 
-            filenamestrat1 = 'output_strategy1' + tnumber + '_seed' + str(seed) + '.csv' 
+        for seed in range(0, 50):
+            filenamestrat0 = dir0 + '/output_' + dir0 + '_seed' + str(seed) + '.csv' 
+            filenamestrat1 = dir1 + '/output_' + dir1 + '_seed' + str(seed) + '.csv' 
             val0 = getMaxValues(filenamestrat0) 
             val1 = getMaxValues(filenamestrat1) 
             diffMax = val0[0] - val1[0]
@@ -42,7 +43,7 @@ def makeDiffHistogram():
     plt.hist(maxl, bins=20, range=(-0.1, 0.1))
     plt.axvline(maxl.mean(), color='k')
     plt.subplot(1,2,2)
-    plt.hist(dayl, bins=10, range=(-5, 5))
+    plt.hist(dayl, bins=10, range=(-10, 10))
     plt.axvline(dayl.mean(), color='k')
     plt.show()
 
@@ -71,23 +72,30 @@ def makeBrazilianPlot():
     plt.fill_between(theDays, theMean-theStdev, theMean+theStdev, edgecolor='#1B2ACC', facecolor='#ffff00',    linewidth=0)
     plt.show()
 
-def drawOneCase(tnumber, seed):
+def drawOneCase(dir0, dir1, seed):
 
-    filenamestrat0 = 'output_strategy0' + tnumber + '_seed' + str(seed) + '.csv' 
-    filenamestrat1 = 'output_strategy1' + tnumber + '_seed' + str(seed) + '.csv' 
+    filenamestrat0 = dir0 + '/output_' + dir0 + '_seed' + str(seed) + '.csv' 
+    filenamestrat1 = dir1 + '/output_' + dir1 + '_seed' + str(seed) + '.csv' 
     array0 = getValues(filenamestrat0)
     array1 = getValues(filenamestrat1)
-    plt.subplot(1, 2, 1)
+    plt.subplot(2, 2, 1)
     plt.plot(array0[0], array0[2], color='green')
     plt.plot(array1[0], array1[2], color='blue')
-    plt.subplot(1, 2, 2)
+    plt.subplot(2, 2, 2)
     plt.plot(array0[0], array0[1], color='green')
     plt.plot(array1[0], array1[1], color='blue')
+    plt.subplot(2, 2, 3)
+    plt.plot(array0[0], array0[3], color='green')
+    plt.plot(array1[0], array1[3], color='blue')
+    plt.subplot(2, 2, 4)
+    plt.plot(array0[0], array0[4], color='green')
+    plt.plot(array1[0], array1[4], color='blue')
     plt.show()
 
 
 if __name__ == "__main__":
 
 
-    makeBrazilianPlot()
-
+    makeDiffHistogram('CitySize500_Strategy1_Testing100', 'CitySize500_Strategy3_Testing100')
+    #drawOneCase('CitySize500_Strategy0_Testing50', 'CitySize500_Strategy3_Testing50', 0)
+    #makeBrazilianPlot()
