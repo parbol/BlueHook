@@ -212,8 +212,7 @@ class City:
                 #print('Contacts of person are: ')
                 #print(i.bluetoothOldMatches)
                 for j in i.bluetoothOldMatches:
-                    #print('Diff Time: ', self.time - j[3], ' with person ', j[0])
-                    if (self.time - j[3]) < self.conf.bluetoothTimeRange: 
+                    if (self.time - j[3]) < self.conf.bluetoothTimeRange and j[4] > self.conf.minBluetoothTime:
                         suspiciousMatches.append(j[0])
             totalSuspiciousMatches+=suspiciousMatches
         return(set(totalSuspiciousMatches))
