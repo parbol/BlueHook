@@ -17,9 +17,9 @@ import numpy as np
 ###############################################################
 class City:
 
-    def __init__(self, confName, serverlocation, filename, seed, mode, paint):
+    def __init__(self, confName, serverlocation, filename, seed, seedCity, mode, paint):
  
-        random.seed(seed)
+        random.seed(seedCity)
 
         self.janus = JanusServer(serverlocation, mode)
         self.filename = filename
@@ -73,6 +73,8 @@ class City:
             self.fileToSave.write('population ' + str(self.conf.realPopulation) + '\n')
             for i in self.buildings:
                 self.fileToSave.write(str(i.floors[0].nAppartmentsPerSide) + ' ' + str(i.floors[0].lAppartment) + '\n')
+        
+        random.seed(seed)
 
     ###################################################################################################
     ###################################################################################################

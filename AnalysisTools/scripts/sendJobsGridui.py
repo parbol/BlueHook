@@ -11,7 +11,7 @@ cd /gpfs/users/parbol/CMSSW_10_5_0_pre1/src
 eval `scramv1 runtime -sh`
 cd /gpfs/users/parbol/BlueHook
 
-python3 runTheCity.py --output OUTPUTFILE --config CONFIGFILE --seed SEED --mode 1 --days DAYS
+python3 runTheCity.py --output OUTPUTFILE --config CONFIGFILE --seed SEED --seedCity SEEDCITY --mode 1 --days DAYS
 
 """
 ###########################################################################################
@@ -79,42 +79,44 @@ appEngagement ENGAGEMENT
 
 
 
-def makeTag(thefile, tag, citysize, strategy, test, engagement, lbluetooth, asympton, nseed):
+def makeTag(thefile, tag, citysize, strategy, test, engagement, lbluetooth, asympton, nseed, nseedcity):
 
     
     directoryName = os.getcwd() + '/' + tag
     os.mkdir(directoryName)
-    for seed in range(0, nseed):
+    for seedCity in range(0, nseedcity):
+        for seed in range(0, nseed):
                     
-        confFileName = directoryName + '/confFile_' + tag + '.cfg'
-        outputFileName = directoryName + '/output_' + tag + '_seed' + str(seed) + '.csv'
-        logFileName = directoryName + '/log_' + tag + '_seed' + str(seed) + '.log'
-        errFileName = directoryName + '/err_' + tag + '_seed' + str(seed) + '.err'
-        executableName = directoryName + '/run_' + tag + '_seed' + str(seed) + '.sh'
+            confFileName = directoryName + '/confFile_' + tag + '.cfg'
+            outputFileName = directoryName + '/output_' + tag + '_seed' + str(seed) + '_CitySeed' + str(seedCity) + '.csv'
+            logFileName = directoryName + '/log_' + tag + '_seed' + str(seed) + '_CitySeed' + str(seedCity) + '.log'
+            errFileName = directoryName + '/err_' + tag + '_seed' + str(seed) + '_CitySeed' + str(seedCity) + '.err'
+            executableName = directoryName + '/run_' + tag + '_seed' + str(seed) + '_CitySeed' + str(seedCity) + '.sh'
 
-        myCityConf = theCityConf
-        myCityConf = myCityConf.replace('CITYSIZE', citysize)                 
-        myCityConf = myCityConf.replace('STRATEGY', str(strategy))                 
-        myCityConf = myCityConf.replace('NTESTS', test)                 
-        myCityConf = myCityConf.replace('ENGAGEMENT', engagement)                 
-        myCityConf = myCityConf.replace('BLUETOOTHRADIUS', lbluetooth)                 
-        myCityConf = myCityConf.replace('NOSYMPTOMS', asympton)                 
-        fconf = open(confFileName, 'w')
-        fconf.write(myCityConf)
-        fconf.close()
+            myCityConf = theCityConf
+            myCityConf = myCityConf.replace('CITYSIZE', citysize)                 
+            myCityConf = myCityConf.replace('STRATEGY', str(strategy))                 
+            myCityConf = myCityConf.replace('NTESTS', test)                 
+            myCityConf = myCityConf.replace('ENGAGEMENT', engagement)                 
+            myCityConf = myCityConf.replace('BLUETOOTHRADIUS', lbluetooth)                 
+            myCityConf = myCityConf.replace('NOSYMPTOMS', asympton)                 
+            fconf = open(confFileName, 'w')
+            fconf.write(myCityConf)
+            fconf.close()
 
-        text = theExecutable
-        text = text.replace('OUTPUTFILE', outputFileName)      
-        text = text.replace('CONFIGFILE', confFileName)      
-        text = text.replace('SEED', str(seed))      
-        text = text.replace('DAYS', str(options.days))      
-        fexe = open(executableName, 'w')
-        fexe.write(text)
-        fexe.close()
-        st = os.stat(executableName)
-        os.chmod(executableName, st.st_mode | stat.S_IEXEC)
-        addendum = 'sbatch ' + ' -o ' + logFileName + ' -e ' + errFileName + ' --qos=gridui_sort --partition=cloudcms ' + executableName + '\n'
-        thefile.write(addendum)
+            text = theExecutable
+            text = text.replace('OUTPUTFILE', outputFileName)      
+            text = text.replace('CONFIGFILE', confFileName)      
+            text = text.replace('SEEDCITY', str(seedCity))      
+            text = text.replace('SEED', str(seed))      
+            text = text.replace('DAYS', str(options.days))      
+            fexe = open(executableName, 'w')
+            fexe.write(text)
+            fexe.close()
+            st = os.stat(executableName)
+            os.chmod(executableName, st.st_mode | stat.S_IEXEC)
+            addendum = 'sbatch ' + ' -o ' + logFileName + ' -e ' + errFileName + ' --qos=gridui_sort --partition=cloudcms ' + executableName + '\n'
+            thefile.write(addendum)
 
 
 
@@ -127,6 +129,7 @@ if __name__ == "__main__":
     parser.add_option("-c", "--citysize",      dest="citysize",         type="string",      default='500',          help="Size of the city")
     parser.add_option("-s", "--strategy",      dest="strategy",         type="string",      default='1',            help="Strategies to follow.")
     parser.add_option("-t", "--test",          dest="tests",            type="string",      default='100',          help="Test capacity.")
+    parser.add_option("-N", "--seedCity",      dest="nseedcity",        type="int",         default='1',            help="Seed for the city.")
     parser.add_option("-n", "--nseed",         dest="nseed",            type="int",         default='100',          help="Number of seeds per case.")
     parser.add_option("-d", "--days",          dest="days",             type="int",         default='20',           help="Number of days.")
     parser.add_option("-e", "--engagemenet",   dest="engagement",       type="string",      default='100',          help="Fraction of people with bluetooth")
@@ -151,12 +154,12 @@ if __name__ == "__main__":
         if theStrategy == 0:
             for theCitySize in citySizes:
                 tag = 'City_' + str(theCitySize) + '_strategy0' 
-                makeTag(runfile, tag, theCitySize, theStrategy, tests[0], engagements[0], lbluetooths[0], asymptoms[0], options.nseed)
+                makeTag(runfile, tag, theCitySize, theStrategy, tests[0], engagements[0], lbluetooths[0], asymptoms[0], options.nseed, options.nseedcity)
         elif theStrategy == 1 or theStrategy == 2:
             for theCitySize in citySizes:
                 for theTest in tests:
                     tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_testing' + str(theTest)
-                    makeTag(runfile, tag, theCitySize, theStrategy, theTest, engagements[0], lbluetooths[0], asymptoms[0], options.nseed)
+                    makeTag(runfile, tag, theCitySize, theStrategy, theTest, engagements[0], lbluetooths[0], asymptoms[0], options.nseed, options.nseedcity)
         elif theStrategy >= 3:
             for theCitySize in citySizes:
                 for theTest in tests:
@@ -164,6 +167,6 @@ if __name__ == "__main__":
                         for theBlue in lbluetooths:
                             for theAsymp in asymptoms:
                                 tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_testing' + str(theTest) + '_engage' + str(theEngage) + '_lblue' + str(theBlue) + '_asymp' + str(theAsymp)
-                                makeTag(runfile, tag, theCitySize, theStrategy, theTest, theEngage, theBlue, theAsymp, options.nseed)
+                                makeTag(runfile, tag, theCitySize, theStrategy, theTest, theEngage, theBlue, theAsymp, options.nseed, options.nseedcity)
  
     runfile.close()
