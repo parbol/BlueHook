@@ -7,6 +7,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import matplotlib.patches as patches
 import glob
 import math
 
@@ -37,16 +38,20 @@ def makeSquares(citysize, buildingsize, streetsize, appartments):
             makeSubSquares(x, y, appartments[i * nbuildings + j])
 
 
-def drawPeople(time, datos):
+def drawPeople(time, datos, population, totalsTime, totalsHealthy, totalsInfected, totalsCured, totalsQuarantine):
 
     datosInfected = []
+    datosInfectedForPlot = []
     datosHealthy = []
     datosCured = []
+    datosQuarantine = []
     for i in datos:
         if i[1] == 1:
-		    datosQuarantine.append(i)
+            datosQuarantine.append(i)
         if i[0] == 0:
             datosHealthy.append(i)
+        if i[0] == 1 and i[1] == 0:
+            datosInfectedForPlot.append(i)
         if i[0] == 1:
             datosInfected.append(i)
         if i[0] == 2:
@@ -55,13 +60,35 @@ def drawPeople(time, datos):
     if len(datosHealthy) != 0:
         personsHealthy = np.asmatrix(datosHealthy)
         plt.plot(personsHealthy[:, 2], personsHealthy[:, 3], '.', color='blue')
-    if len(datosInfected) != 0:
-        personsInfected = np.asmatrix(datosInfected)
+    if len(datosInfectedForPlot) != 0:
+        personsInfected = np.asmatrix(datosInfectedForPlot)
         plt.plot(personsInfected[:, 2], personsInfected[:, 3], '.', color='red')
     if len(datosCured) != 0:
         personsCured = np.asmatrix(datosCured)
         plt.plot(personsCured[:, 2], personsCured[:, 3], '.', color='green')
+    if len(datosQuarantine) != 0:
+        personsQuarantine = np.asmatrix(datosQuarantine)
+        plt.plot(personsQuarantine[:, 2], personsQuarantine[:, 3], '.', color='black')
 
+    totalsTime.append(float(time/(24*60)))
+    totalsHealthy.append(float(len(datosHealthy)/population))
+    totalsInfected.append(float(len(datosInfected)/population))
+    totalsCured.append(float(len(datosCured)/population))
+    totalsQuarantine.append(float(len(datosQuarantine)/population))
+
+def makeSecondPlot(totalsTime, totalsHealthy, totalsInfected, totalsCured, totalsQuarantine):
+
+    
+    thetime = np.asarray(totalsTime)
+    thehealthy = np.asarray(totalsHealthy)
+    theinfected = np.asarray(totalsInfected)
+    thecured = np.asarray(totalsCured)
+    thequar = np.asarray(totalsQuarantine)
+
+    plt.plot(thetime, thehealthy,  color='blue')
+    plt.plot(thetime, theinfected, color='red')
+    plt.plot(thetime, thecured,    color='green')
+    plt.plot(thetime, thequar, color='black')
 
 
 if __name__ == "__main__":
@@ -70,6 +97,7 @@ if __name__ == "__main__":
     parser = OptionParser(usage="%prog --help")
     parser.add_option("-i", "--input",      dest="inputFile",         type="string",      default='citymotion.txt',          help="Name of the input file.")
     parser.add_option("-d", "--directory",  dest="dir",               type="string",      default='plots',                   help="Directory to put the plots in.")
+    parser.add_option("-t", "--type",       dest="type",              type="int",         default=1,                         help="Double or single plot.")
     (options, args) = parser.parse_args()
 
     os.mkdir(options.dir)
@@ -87,9 +115,16 @@ if __name__ == "__main__":
         v = [int(text[4+i].split()[0]), float(text[4+i].split()[1])]
         appartments.append(v)
 
+    totalsTime = []
+    totalsInfected = []
+    totalsHealthy = []
+    totalsCured = []
+    totalsQuarantine = []
     plt.ioff()
     for hour in range(0, nhours):
-        fig = plt.figure()
+        fig = plt.figure(figsize = (20,10))
+        #fig, ax = plt.subplot(1, 2, figsize=(10, 5))
+        plt.subplot(1, 2, 1)
         plt.xlim(0, citysize + streetsize)
         plt.ylim(0, citysize + streetsize)    
         plt.xlabel('x [m]')
@@ -113,9 +148,16 @@ if __name__ == "__main__":
             vect.append(y)
             personxy.append(vect)
 
-        drawPeople(time, personxy)
+        drawPeople(time, personxy, population, totalsTime, totalsHealthy, totalsInfected, totalsCured, totalsQuarantine)
         makeSquares(citysize, buildingsize, streetsize, appartments)
         #plt.show()
+        plt.subplot(1, 2, 2)
+        plt.xlim(0, (nhours*60)/(24*60) + 1)
+        plt.ylim(0, 1.1)    
+        plt.xlabel('Day')
+        plt.ylabel('Fraction')
+        plt.title('Total population: ' + str(population))
+        makeSecondPlot(totalsTime, totalsHealthy, totalsInfected, totalsCured, totalsQuarantine)
         plt.savefig(options.dir + '/city_' + str(time) + '.png')
         plt.close(fig)
 
