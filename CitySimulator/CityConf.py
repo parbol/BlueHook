@@ -69,6 +69,11 @@ class CityConf:
                 self.numberOfTestsPerDay = int(b)
             if a == 'bluetoothTimeRange':
                 self.bluetoothTimeRange = int(b) * 24 * 60
+            if a == 'appEngagement':
+                self.appEngagement = float(b)
+            if a == 'minBluetoothTime':
+                self.minBluetoothTime = int(b)
+
                                      
         self.instantInfectionProbability = 1.0 - math.pow(1 - self.infectionProbability, 1.0/30.0)
         self.lBlock = int(self.lBuilding + self.lStreet)

@@ -48,29 +48,26 @@ def makeDiffHistogram(dir0, dir1):
     plt.show()
 
 
-def makeBrazilianPlot():
-    test=[]
+def makeBrazilianPlot(folder):
+    listInfected=[]
     tag_numberoftests = ['_100']
     for tnumber in tag_numberoftests:
-        for seed in range(0, 100):
-            f = 'output_strategy0' + tnumber + '_seed' + str(seed) + '.csv'
-            print(f)
-            numpyFile=np.genfromtxt(f,delimiter=',')[2]
-            if (len(numpyFile == 23)):
-                test.append(numpyFile)
-    df = pd.DataFrame(data=test)
+        for seed in range(0, 50):
+            f= folder + '/output_' + folder + '_seed' + str(seed) + '.csv'
+            numpyInfected=np.genfromtxt(f,delimiter=',')[2]
+            listInfected.append(numpyInfected)
+    df = pd.DataFrame(data=listInfected)
     theMean=np.array([])
     theStdev=np.array([])
-    for i in range(23):
+    theDays=np.arange(len(numpyInfected))
+    for i in theDays:
         theMean=np.append(theMean,np.mean(df[i]))
         theStdev=np.append(theStdev, np.std(df[i]))
-    print(theMean)
-    print(theStdev)
-    theDays=np.arange(23)
     plt.plot(theDays, theMean, 'k-')
     plt.fill_between(theDays, theMean-2*theStdev, theMean+2*theStdev, edgecolor='#3F7F4C', facecolor='#7EFF99',    linewidth=0)
     plt.fill_between(theDays, theMean-theStdev, theMean+theStdev, edgecolor='#1B2ACC', facecolor='#ffff00',    linewidth=0)
-    plt.show()
+    #plt.show()
+    plt.savefig('foo.png')
 
 def drawOneCase(dir0, dir1, seed):
 
@@ -96,6 +93,7 @@ def drawOneCase(dir0, dir1, seed):
 if __name__ == "__main__":
 
 
-    makeDiffHistogram('CitySize500_Strategy1_Testing100', 'CitySize500_Strategy3_Testing100')
-    #drawOneCase('CitySize500_Strategy0_Testing50', 'CitySize500_Strategy3_Testing50', 0)
-    #makeBrazilianPlot()
+#    makeDiffHistogram('CitySize500_Strategy1_Testing100', 'CitySize500_Strategy3_Testing100')
+    
+#drawOneCase('CitySize500_Strategy0_Testing50', 'CitySize500_Strategy3_Testing50', 0)
+    makeBrazilianPlot('CitySize500_Strategy1_Testing100')

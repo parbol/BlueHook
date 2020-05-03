@@ -53,8 +53,15 @@ class City:
         self.tested=[]
         self.nquarantine=[]
         
-	#Creating the population
+     	#Creating the population
         self.thePopulation = self.PopulationBuilder()
+
+        #Turning on the bluetooth according to the engagement
+        switchOnBluetooth=random.sample(range(len(self.thePopulation)), k=int(self.conf.appEngagement*len(self.thePopulation)/100))
+        for citizen in self.thePopulation:
+             if citizen.person in switchOnBluetooth:
+                 citizen.bluetoothOn=1
+
         self.conf.loadPopulationDetails(len(self.thePopulation))
         self.update()
 
@@ -119,7 +126,7 @@ class City:
                         appartmentworkplace = random.randint(0, self.buildings[buildingworkplace].floors[floorworkplace].nAppartments-1)
                         person = Person(personId, personindex, house.building, floor.floor, app.appartment, buildingworkplace, floorworkplace, appartmentworkplace, self.conf) 
                         thepopulation.append(person)
-                        indexofpeople.append(personindex) 
+                        indexofpeople.append(personindex)
                         personindex = personindex + 1
                     app.assignPeople(indexofpeople)
                     app.inhabitants=[x for x in indexofpeople]
@@ -217,8 +224,7 @@ class City:
                 #print('Contacts of person are: ')
                 #print(i.bluetoothOldMatches)
                 for j in i.bluetoothOldMatches:
-                    #print('Diff Time: ', self.time - j[3], ' with person ', j[0])
-                    if (self.time - j[3]) < self.conf.bluetoothTimeRange and self.thePopulation[j[0]].quarantine==0: 
+                    if (self.time - j[3]) < self.conf.bluetoothTimeRange and j[4] > self.conf.minBluetoothTime:
                         suspiciousMatches.append(j[0])
             totalSuspiciousMatches+=suspiciousMatches
         return(set(totalSuspiciousMatches))
@@ -236,20 +242,40 @@ class City:
 
         #Random testing - strategy 1
         if (strategy==1):
-            notYetTested=[x for x in range(self.conf.realPopulation) if x not in self.tested and self.thePopulation[x].quarantine!=1]
+            notYetTested=[x for x in range(self.conf.realPopulation) if x not in self.tested and self.thePopulation[x].quarantine!=1 and self.thePopulation[x].health !=2]
 
         #Testing families - strategy 2
         if (strategy==2):
-            notYetTested=[x for x in self.suspiciousFamilies() if x not in self.tested and self.thePopulation[x].quarantine!=1]
+            notYetTested=[x for x in self.suspiciousFamilies() if x not in self.tested and self.thePopulation[x].quarantine!=1 and self.thePopulation.health !=2]
 
-        #Testing bluetooth matches - strategy 3
-        if (strategy ==3 or strategy == 4):
-            notYetTested=[x for x in self.suspiciousBluetoothMatches() if x not in self.tested]
+        #Testing bluetooth matches - strategy 3 and putting in quarantine all the bluetooth matches - strategy 4
+        if (strategy ==3 or strategy ==4):
+            notYetTested=[x for x in self.suspiciousBluetoothMatches() if x not in self.tested and self.thePopulation[x].quarantine!=1 and self.thePopulation[x].health!=2]
+            #print('Testing: ')
+            #print(notYetTested)
+
+
+        #Testing bluetooth matches and sending the no tested to quarantine - strategy 5
+        if (strategy == 5):
+            notYetTested=[x for x in self.suspiciousBluetoothMatches() if x not in self.tested and self.thePopulation[x].symptoms==0 and self.thePopulation[x].health!=2]
             #print('Testing: ')
             #print(notYetTested)
 
         #Check if the total numbers of test is bigger than the population to be tested
         if strategy < 4:
+            if len(notYetTested) >= self.conf.numberOfTestsPerDay:
+                dailyTested=random.sample(notYetTested, k=self.conf.numberOfTestsPerDay)
+            else:
+                dailyTested=notYetTested
+
+        elif strategy == 4:
+            dailyTested=notYetTested
+            for i in dailyTested:
+                citizen=self.thePopulation[i]
+                citizen.quarantine = 1
+
+        elif strategy == 5:
+
             if len(notYetTested) >= self.conf.numberOfTestsPerDay:
                 dailyTested=random.sample(notYetTested, k=self.conf.numberOfTestsPerDay)
             else:
@@ -266,14 +292,15 @@ class City:
                     citizen.quarantine = 1
                     citizen.positiveTested=1
                     self.tested.append(i)
-        else:
-            dailyTested=notYetTested
-            for i in dailyTested:
-                citizen=self.thePopulation[i]
-                citizen.quarantine = 1
+                elif citizen.health==0:
+                    if citizen.quarantine ==1:
+                        citizen.quarantine ==0
+                        #print("Dear people from Smallport, we just freed one of your citizens from quarantine directly into a pandemic world!")
+                        #print("God protect the poor soul!") 
 
-
-
+            dailyQuarantined=[x for x in notYetTested if x not in dailyTested]
+            for i in dailyQuarantined:
+                self.thePopulation[i].quarantine=1
 
     ###################################################################################################
     ###################################################################################################
@@ -308,7 +335,7 @@ class City:
                             continue 
                         matchInfection.add(i) 
                     #Tracking bluetooth contacts
-                    if self.conf.strategy == 3 or self.conf.strategy == 4:
+                    if self.conf.strategy == 3 or self.conf.strategy == 4 or self.conf.strategy ==5:
                         listOfPersons = app.persons
                         if len(listOfPersons) == 0:
                             continue
@@ -350,7 +377,7 @@ class City:
             self.infect(i[0], i[1])
                         
         #Going for bluetooth contact
-        if self.conf.strategy == 3 or self.conf.strategy == 4:
+        if self.conf.strategy == 3 or self.conf.strategy == 4 or self.conf.strategy == 5:
             for i in matchBluetooth:
                 self.bluetooth(i[0], i[1])
                         
@@ -372,6 +399,8 @@ class City:
     def bluetooth(self, person1, person2):
    
         if self.thePopulation[person1].quarantine == 1 or self.thePopulation[person2].quarantine == 1:
+            return
+        if (self.thePopulation[person1].bluetoothOn== 0 or self.thePopulation[person2].bluetoothOn==0):
             return
         self.thePopulation[person1].bluetoothMatch(person2, self.thePopulation[person1].x, self.thePopulation[person1].y, self.time)
         self.thePopulation[person2].bluetoothMatch(person1, self.thePopulation[person2].x, self.thePopulation[person2].y, self.time)
