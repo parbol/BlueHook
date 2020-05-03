@@ -17,7 +17,8 @@ class Building:
         self.nFloors = 1
         if theType != 2:
             self.nFloors = 1 + int(round(random.gammavariate(conf.nFloorIndex, 1)))
-        self.nAppartmentsPerFloor = 1 + int(round(random.gammavariate(conf.nAppartmentIndex, 1)))
+        number = min(max(1, int(round(random.gauss(conf.nAppartmentIndex, 2)))), 4)
+        self.nAppartmentsPerFloor = number * number
 
         self.floors = []
         for i in range(0, self.nFloors):

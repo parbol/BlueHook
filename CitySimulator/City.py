@@ -89,7 +89,7 @@ class City:
 
         for i in range(0, self.conf.nIter):
             for j in range(0, self.conf.nIter):
-                dice = building / tot
+                dice = random.random()
                 if dice < self.conf.fracRes:
                     thebuilding = Building(building, self.conf, i, j, 0)
                     buildings.append(thebuilding)
