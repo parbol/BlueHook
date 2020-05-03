@@ -141,6 +141,13 @@ class City:
         for i in range(0, days):
             self.runDay(i)
         self.Save()
+
+        #Estimate the average contact time with citizen 0
+        if self.conf.strategy == 100:
+            averageContact=0
+            for citizen in self.thePopulation:
+                averageContact+=citizen.contactTimeWithZero
+            print("The average contact per person is : " ,averageContact/(len(self.thePopulation)-1)) 
         if self.paint != -1:
             self.fileToSave.close()
     ###################################################################################################
@@ -237,7 +244,7 @@ class City:
        
         strategy=self.conf.strategy
         #No testing - strategy 0
-        if (strategy==0):
+        if (strategy==0 or strategy ==100):
             return 
 
         #Random testing - strategy 1
@@ -319,6 +326,13 @@ class City:
                     for i in itertools.product(app.persons, app.persons):
                         if i[0] <= i[1]:
                             continue
+                        x1 = self.thePopulation[i[0]].x
+                        x2 = self.thePopulation[i[1]].x
+                        y1 = self.thePopulation[i[0]].y
+                        y2 = self.thePopulation[i[1]].y
+                        if self.thePopulation[i[1]].person ==0 and self.thePopulation[i[1]].canInfect ==1 and  math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)) <= self.conf.infectionRadius:
+                            self.thePopulation[i[0]].contactTimeWithZero+=1 
+
                         if not (self.thePopulation[i[0]].canInfect == 1 or self.thePopulation[i[1]].canInfect == 1):
                             continue 
                         if self.thePopulation[i[0]].health == 1 and self.thePopulation[i[1]].health == 1:
@@ -327,13 +341,9 @@ class City:
                             continue
                         if self.thePopulation[i[0]].quarantine == 1 or self.thePopulation[i[1]].quarantine == 1:
                             continue
-                        x1 = self.thePopulation[i[0]].x
-                        x2 = self.thePopulation[i[1]].x
-                        y1 = self.thePopulation[i[0]].y
-                        y2 = self.thePopulation[i[1]].y
                         if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)) > self.conf.infectionRadius:
                             continue 
-                        matchInfection.add(i) 
+                        matchInfection.add(i)
                     #Tracking bluetooth contacts
                     if self.conf.strategy == 3 or self.conf.strategy == 4 or self.conf.strategy ==5:
                         listOfPersons = app.persons
@@ -374,7 +384,8 @@ class City:
  
         #Going for infections
         for i in matchInfection:
-            self.infect(i[0], i[1])
+            if (self.conf.strategy!=100):
+                self.infect(i[0], i[1])
                         
         #Going for bluetooth contact
         if self.conf.strategy == 3 or self.conf.strategy == 4 or self.conf.strategy == 5:

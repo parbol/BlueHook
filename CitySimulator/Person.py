@@ -25,6 +25,8 @@ class Person:
         self.x = 0
         self.y = 0
         self.z = floor * 3
+        self.contactTimeWithZero=0
+
         #Activity times
         self.timeToGoToWork = 1441 
         self.timeToLeaveWork = 1441
