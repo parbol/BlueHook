@@ -171,7 +171,7 @@ if __name__ == "__main__":
                 for theTest in tests:
                     tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_testing' + str(theTest)
                     makeTag(runfile, tag, theCitySize, theStrategy, theTest, engagements[0], lbluetooths[0], asymptoms[0], options.nseed, options.nseedcity)
-        elif theStrategy == 3 or theStrategy == 2:
+        elif theStrategy == 3 or theStrategy == 5:
             for theCitySize in citySizes:
                 for theTest in tests:
                     for theEngage in engagements:
