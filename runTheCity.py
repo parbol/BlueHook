@@ -13,10 +13,11 @@ if __name__ == "__main__":
     parser.add_option("-c", "--config",    dest="config",       type="string",   default='1',          help="Config file")
     parser.add_option("-m", "--mode",      dest="mode",         type="int",      default='1',          help="Mode: 0 with database, 1 without database")
     parser.add_option("-d", "--days",      dest="days",         type="int",      default='20',         help="Number of days to run")
+    parser.add_option("-p", "--paint",     dest="paint",        type="int",      default='-1',         help="Interval to paint [not use it if don't want to paing].")
     (options, args) = parser.parse_args()
 
 
-    city = City(options.config, 'ws://localhost:8182/gremlin', options.output, options.seed, options.mode)
+    city = City(options.config, 'ws://localhost:8182/gremlin', options.output, options.seed, options.mode, options.paint)
     city.runDays(options.days)
 
 

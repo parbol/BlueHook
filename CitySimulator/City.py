@@ -17,12 +17,13 @@ import numpy as np
 ###############################################################
 class City:
 
-    def __init__(self, confName, serverlocation, filename, seed, mode):
+    def __init__(self, confName, serverlocation, filename, seed, mode, paint):
  
         random.seed(seed)
 
         self.janus = JanusServer(serverlocation, mode)
         self.filename = filename
+        self.paint = paint
 
         #Internal parameters of the city
         self.conf = CityConf(confName) 
@@ -57,6 +58,14 @@ class City:
         self.conf.loadPopulationDetails(len(self.thePopulation))
         self.update()
 
+        if self.paint != -1:
+            self.fileToSave = open('geometry.txt', 'w')
+            self.fileToSave.write('citysize ' + str(self.conf.size) + '\n')
+            self.fileToSave.write('lbuilding ' + str(self.conf.lBuilding) + '\n')
+            self.fileToSave.write('lstreet ' + str(self.conf.lStreet) + '\n')
+            self.fileToSave.write('population ' + str(self.conf.realPopulation) + '\n')
+            for i in self.buildings:
+                self.fileToSave.write(str(i.floors[0].nAppartmentsPerSide) + ' ' + str(i.floors[0].lAppartment) + '\n')
 
     ###################################################################################################
     ###################################################################################################
@@ -125,7 +134,8 @@ class City:
         for i in range(0, days):
             self.runDay(i)
         self.Save()
-
+        if self.paint != -1:
+            self.fileToSave.close()
     ###################################################################################################
     ###################################################################################################
     def runDay(self, day):
@@ -135,7 +145,9 @@ class City:
         for j in range(0, 24*60):
             self.runMinute()
             self.time = self.time + 1
-
+            if self.paint != -1:
+                if j % self.paint == 0:
+                    self.storeGeometricInfo()
 	
     ###################################################################################################
     ###################################################################################################
@@ -553,4 +565,11 @@ class City:
         hour = math.floor(newtime / 60)
         return hour
 
+    ###################################################################################################
+    ###################################################################################################
+    def storeGeometricInfo(self):
+
+        self.fileToSave.write(str(self.time) + '\n')
+        for person in self.thePopulation:
+            self.fileToSave.write(str(person.health) + ' ' + str(person.x) + ' ' + str(person.y) + '\n')
 
