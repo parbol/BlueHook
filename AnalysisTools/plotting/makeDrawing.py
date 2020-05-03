@@ -55,6 +55,8 @@ def makeBrazilianPlot(folder):
         for seed in range(0, 50):
             f= folder + '/output_' + folder + '_seed' + str(seed) + '.csv'
             numpyInfected=np.genfromtxt(f,delimiter=',')[2]
+            nCitizens=np.genfromtxt(f,delimiter=',')[1][0]+1
+            numpyInfected=100*numpyInfected/nCitizens
             listInfected.append(numpyInfected)
     df = pd.DataFrame(data=listInfected)
     theMean=np.array([])
@@ -64,9 +66,12 @@ def makeBrazilianPlot(folder):
         theMean=np.append(theMean,np.mean(df[i]))
         theStdev=np.append(theStdev, np.std(df[i]))
     plt.plot(theDays, theMean, 'k-')
-    plt.fill_between(theDays, theMean-2*theStdev, theMean+2*theStdev, edgecolor='#3F7F4C', facecolor='#7EFF99',    linewidth=0)
-    plt.fill_between(theDays, theMean-theStdev, theMean+theStdev, edgecolor='#1B2ACC', facecolor='#ffff00',    linewidth=0)
-    #plt.show()
+    #plt.fill_between(theDays, theMean-2*theStdev, theMean+2*theStdev, edgecolor='#3F7F4C', facecolor='#7EFF99',    linewidth=0, alpha=0.5)
+    plt.fill_between(theDays, theMean-theStdev, theMean+theStdev, edgecolor='#1B2ACC', facecolor='#ffff00',    linewidth=0, alpha=0.5)
+    plt.xlabel("Days")
+    plt.ylabel("% of infected people")
+    plt.title(folder)
+    plt.show()
     plt.savefig('foo.png')
 
 def drawOneCase(dir0, dir1, seed):
