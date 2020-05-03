@@ -43,6 +43,8 @@ def drawPeople(time, datos):
     datosHealthy = []
     datosCured = []
     for i in datos:
+        if i[1] == 1:
+		    datosQuarantine.append(i)
         if i[0] == 0:
             datosHealthy.append(i)
         if i[0] == 1:
@@ -52,13 +54,13 @@ def drawPeople(time, datos):
 
     if len(datosHealthy) != 0:
         personsHealthy = np.asmatrix(datosHealthy)
-        plt.plot(personsHealthy[:, 1], personsHealthy[:, 2], '.', color='blue')
+        plt.plot(personsHealthy[:, 2], personsHealthy[:, 3], '.', color='blue')
     if len(datosInfected) != 0:
         personsInfected = np.asmatrix(datosInfected)
-        plt.plot(personsInfected[:, 1], personsInfected[:, 2], '.', color='red')
+        plt.plot(personsInfected[:, 2], personsInfected[:, 3], '.', color='red')
     if len(datosCured) != 0:
         personsCured = np.asmatrix(datosCured)
-        plt.plot(personsCured[:, 1], personsCured[:, 2], '.', color='green')
+        plt.plot(personsCured[:, 2], personsCured[:, 3], '.', color='green')
 
 
 
@@ -101,10 +103,12 @@ if __name__ == "__main__":
         personxy = []
         for i in range(0, population):
             inf = float(text[a+i+1].split()[0])
-            x = float(text[a+i+1].split()[1])
-            y = float(text[a+i+1].split()[2])
+            qua = float(text[a+i+1].split()[1])
+            x = float(text[a+i+1].split()[2])
+            y = float(text[a+i+1].split()[3])
             vect = []
             vect.append(inf)
+            vect.append(qua)
             vect.append(x)
             vect.append(y)
             personxy.append(vect)

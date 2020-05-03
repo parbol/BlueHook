@@ -602,5 +602,5 @@ class City:
 
         self.fileToSave.write(str(self.time) + '\n')
         for person in self.thePopulation:
-            self.fileToSave.write(str(person.health) + ' ' + str(person.x) + ' ' + str(person.y) + '\n')
+            self.fileToSave.write(str(person.health) + ' ' + str(person.quarantine) + ' ' + str(person.x) + ' ' + str(person.y) + '\n')
 
