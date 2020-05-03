@@ -81,7 +81,7 @@ error                   = LOGDIR/$(ClusterId).$(ProcId).err
 log                     = LOGDIR/$(ClusterId).log
 Notify_user             = pablom@cern.ch
 +JobFlavour = "tomorrow" 
-queue filename matching (CitySize*/run_*sh)
+queue filename matching (City*/run_*sh)
 
 """
 ###########################################################################################
