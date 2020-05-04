@@ -245,7 +245,7 @@ class City:
         #Random testing - strategy 1
         if (strategy==1):
             notYetTested=[x for x in range(self.conf.realPopulation) if x not in self.tested and self.thePopulation[x].quarantine!=1 and self.thePopulation[x].health !=2]
-
+             
         #Testing families - strategy 2
         if (strategy==2):
             notYetTested=[x for x in self.suspiciousFamilies() if x not in self.tested and self.thePopulation[x].quarantine!=1 and self.thePopulation[x].health !=2]
@@ -269,7 +269,18 @@ class City:
                 dailyTested=random.sample(notYetTested, k=self.conf.numberOfTestsPerDay)
             else:
                 dailyTested=notYetTested
-
+           
+            for i in dailyTested:
+                #print('Testing: ', i)
+                #resb = self.thePopulation[i].residentialBuilding
+                #resf = self.thePopulation[i].residentialFloor
+                #resa = self.thePopulation[i].residentialAppartment
+                citizen=self.thePopulation[i]
+                if citizen.health == 1:
+                    citizen.quarantine = 1
+                    citizen.positiveTested=1
+                    self.tested.append(i)
+ 
         elif strategy == 4:
             dailyTested=notYetTested
             for i in dailyTested:
@@ -283,7 +294,6 @@ class City:
             else:
                 dailyTested=notYetTested
 
-            #print(dailyTested)
             for i in dailyTested:
                 #print('Testing: ', i)
                 #resb = self.thePopulation[i].residentialBuilding
@@ -294,12 +304,14 @@ class City:
                     citizen.quarantine = 1
                     citizen.positiveTested=1
                     self.tested.append(i)
-                elif citizen.health==0:
+                elif citizen.health == 0:
                     if citizen.quarantine ==1:
                         citizen.quarantine ==0
                         #print("Dear people from Smallport, we just freed one of your citizens from quarantine directly into a pandemic world!")
                         #print("God protect the poor soul!") 
 
+
+            #print(dailyTested)
             dailyQuarantined=[x for x in notYetTested if x not in dailyTested]
             for i in dailyQuarantined:
                 self.thePopulation[i].quarantine=1
@@ -402,7 +414,7 @@ class City:
    
         if self.thePopulation[person1].quarantine == 1 or self.thePopulation[person2].quarantine == 1:
             return
-        if (self.thePopulation[person1].bluetoothOn== 0 or self.thePopulation[person2].bluetoothOn==0):
+        if self.thePopulation[person1].bluetoothOn== 0 or self.thePopulation[person2].bluetoothOn==0:
             return
         self.thePopulation[person1].bluetoothMatch(person2, self.thePopulation[person1].x, self.thePopulation[person1].y, self.time)
         self.thePopulation[person2].bluetoothMatch(person1, self.thePopulation[person2].x, self.thePopulation[person2].y, self.time)
