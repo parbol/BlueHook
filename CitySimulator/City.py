@@ -248,7 +248,7 @@ class City:
 
         #Testing families - strategy 2
         if (strategy==2):
-            notYetTested=[x for x in self.suspiciousFamilies() if x not in self.tested and self.thePopulation[x].quarantine!=1 and self.thePopulation.health !=2]
+            notYetTested=[x for x in self.suspiciousFamilies() if x not in self.tested and self.thePopulation[x].quarantine!=1 and self.thePopulation[x].health !=2]
 
         #Testing bluetooth matches - strategy 3 and putting in quarantine all the bluetooth matches - strategy 4
         if (strategy ==3 or strategy ==4):
