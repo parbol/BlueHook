@@ -72,6 +72,8 @@ numberOfTestsPerDay NTESTS
 bluetoothTimeRange 5
 #Percentage of people engaged (with the app installed and bluetooth on)
 appEngagement ENGAGEMENT
+#Minimal time to take bluetooth contact into consideration (in minutes)
+minBluetoothTime 10
 
 """
 ###########################################################################################
