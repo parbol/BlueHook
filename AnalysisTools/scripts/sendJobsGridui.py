@@ -155,13 +155,15 @@ if __name__ == "__main__":
         theStrategy = int(theStrategyk)
         if theStrategy == 0:
             for theCitySize in citySizes:
-                tag = 'City_' + str(theCitySize) + '_strategy0' 
-                makeTag(runfile, tag, theCitySize, theStrategy, tests[0], engagements[0], lbluetooths[0], asymptoms[0], options.nseed, options.nseedcity)
+                for theAsymp in asymptoms:
+                     tag = 'City_' + str(theCitySize) + '_strategy0' + '_asymp' + str(theAsymp)
+                     makeTag(runfile, tag, theCitySize, theStrategy, tests[0], engagements[0], lbluetooths[0], theAsymp, options.nseed, options.nseedcity)
         elif theStrategy == 1 or theStrategy == 2:
             for theCitySize in citySizes:
                 for theTest in tests:
-                    tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_testing' + str(theTest)
-                    makeTag(runfile, tag, theCitySize, theStrategy, theTest, engagements[0], lbluetooths[0], asymptoms[0], options.nseed, options.nseedcity)
+                    for theAsymp in asymptoms:
+                        tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_testing' + str(theTest) + '_asymp' + str(theAsymp)
+                        makeTag(runfile, tag, theCitySize, theStrategy, theTest, engagements[0], lbluetooths[0], theAsymp, options.nseed, options.nseedcity)
         elif theStrategy == 3 or theStrategy == 5:
             for theCitySize in citySizes:
                 for theTest in tests:
