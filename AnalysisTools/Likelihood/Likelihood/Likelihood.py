@@ -22,15 +22,8 @@ class Likelihood:
         for k, j in enumerate(self.reader.infected):
             if k == i:
                 continue
-            tmin = j[0]
-            tmax = j[1]
-            if tmin == -1:
-                continue
-            if tmax == -1:
-                tmax = self.reader.lt
-            for n in range(tmin, tmax):
-                if self.reader.eta(i, k, n):
-                    suma = suma + 1
+            #print(i, k, self.reader.eta(i,k))
+            suma = suma + self.reader.eta(i, k)
         return suma
 
     ###############################################################
@@ -39,11 +32,12 @@ class Likelihood:
         qv = 0
         for i in range(0, self.reader.npersons):
             psum = self.giveSum(i)
+            #print(psum)
             if psum == 0:
                 continue
             if self.reader.status[i] == 0:
-                qv = qv - 2.0 * psum * (1 - p)
+                qv = qv - 2.0 * psum * math.log(1.0 - p)
             else:
-                qv = qv - 2.0 * math.log(1.0 - math.pow(1-p, psum))
+                qv = qv - 2.0 * math.log(1.0 - math.pow(1.0-p, psum))
         return qv
 

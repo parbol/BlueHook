@@ -16,11 +16,15 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
    
     reader = Reader(options.inputFile, options.n)
+
+
+    print(reader.infected[4])
+
     likelihood = Likelihood(reader)
 
-    p = [0.07, 0.0035059, 0.001]
+    p = [0.5, 0.4, 0.3, 0.2, 0.1, 0.01, 0.008, 0.006, 0.004, 0.003, 0.002, 0.001, 0.0005, 0.0001]
     for s in p:
-        print(likelihood.q(s))
+        print(s, likelihood.q(s))
 
 
 

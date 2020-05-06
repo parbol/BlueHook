@@ -4,7 +4,6 @@ import math
 
 
 
-
 ###############################################################
 ###############################################################
 class Reader:
@@ -16,7 +15,7 @@ class Reader:
         self.lt = self.lastTime()
         self.infected = []
         self.status = []
-        self.contacts = dict()
+        self.contacts = [[[]]]
         self.readInfected()
         self.readContacts()
         self.readStatus()
@@ -45,6 +44,14 @@ class Reader:
     ###############################################################
     ###############################################################
     def readContacts(self):
+       
+        vk = [[[]]]
+        for i in range(self.npersons):
+            vk.append([[]])
+            self.contacts.append([[]])
+            for j in range(self.npersons):
+                vk[i].append([])
+                self.contacts[i].append([])
 
         f = open(self.fileName)
         for i in f.readlines():
@@ -55,22 +62,53 @@ class Reader:
                 time = int(s[3])
                 if time == self.lt:
                     break
-                c = (id1, time)
-                if c not in self.contacts.keys():
-                    v = []
-                    v.append(id2)
-                    self.contacts[c] = v
-                else:
-                    self.contacts[c].append(id2)
+                vk[id1][id2].append(time)
+                vk[id2][id1].append(time)
         f.close()
+        
+        for i in range(self.npersons):
+            for j in range(self.npersons):
+                aux = []
+                last = -5
+                if len(vk[i][j]) == 0:
+                    continue
+                notStarted = True
+                v = [-1, -1]
+                v[0] = vk[i][j][0]
+                for t in range(1, len(vk[i][j])-1):
+                    if vk[i][j][t] == vk[i][j][t-1] + 1:
+                        continue
+                    else:
+                        v[1] = vk[i][j][t-1]
+                        self.contacts[i][j].append(v)
+                        v = [-1, -1]
+                        v[0] = vk[i][j][t]
+                if vk[i][j][len(vk[i][j])-1] != self.lt-1:
+                    v[1] = vk[i][j][len(vk[i][j])-1]
+                self.contacts[i][j].append(v)
+                     
 
     ###############################################################
     ###############################################################
-    def eta(self, i, j, t):
-        c = (i, t)
-        if c in self.contacts.keys() and j in self.contacts[c]:
-            return 1
-        return 0
+    def eta(self, i, j):
+        
+        if self.infected[j][0] == -1:
+            return 0
+        tmini = self.infected[j][0]
+        tmaxi = self.infected[j][1]
+        if tmaxi == -1:
+            tmaxi = self.lt - 1
+        sumMinutes = 0
+        for h in self.contacts[i][j]:
+            tminc = h[0]
+            tmaxc = h[1]
+            if tmaxc == -1:
+                tmaxc = self.lt-1
+            maxmin = max(tmini, tminc)
+            minmax = min(tmaxi, tmaxc)
+            if maxmin < minmax:
+                sumMinutes = sumMinutes + minmax - maxmin
+        return sumMinutes
 
     ###############################################################
     ###############################################################
@@ -104,8 +142,11 @@ class Reader:
     def readStatus(self):
 
         for i in range(0, self.npersons):
-            self.status.append(self.delta(i, self.lt))
-    
+            if self.infected[i][0] == -1:
+                self.status.append(0)
+            else:
+                self.status.append(1)
+ 
     ###############################################################
     ###############################################################
 
