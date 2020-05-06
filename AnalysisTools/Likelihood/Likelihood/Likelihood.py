@@ -16,7 +16,7 @@ class Likelihood:
     
     ###############################################################
     ###############################################################
-    def probabilityHealthy(self, i, p):
+    def giveSum(self, i):
     
         suma = 0
         for k, j in enumerate(self.reader.infected):
@@ -31,20 +31,19 @@ class Likelihood:
             for n in range(tmin, tmax):
                 if self.reader.eta(i, k, n):
                     suma = suma + 1
-        print(suma)
-        return 1.0 - math.pow(p, suma)
+        return suma
 
     ###############################################################
     ###############################################################
     def q(self, p):
         qv = 0
         for i in range(0, self.reader.npersons):
-            ps = self.probabilityHealthy(i, p)
-            if ps == 1:
+            psum = self.giveSum(i)
+            if psum == 0:
                 continue
             if self.reader.status[i] == 0:
-                qv = qv - 2.0 * math.log( ps )
+                qv = qv - 2.0 * psum * (1 - p)
             else:
-                qv = qv - 2.0 * math.log(1.0 - ps)
+                qv = qv - 2.0 * math.log(1.0 - math.pow(1-p, psum))
         return qv
 
