@@ -59,16 +59,16 @@ def drawPeople(time, datos, population, totalsTime, totalsHealthy, totalsInfecte
 
     if len(datosHealthy) != 0:
         personsHealthy = np.asmatrix(datosHealthy)
-        plt.plot(personsHealthy[:, 2], personsHealthy[:, 3], '.', color='blue')
+        plt.plot(personsHealthy[:, 2], personsHealthy[:, 3], '.', color='blue', alpha=0.6)
     if len(datosInfectedForPlot) != 0:
         personsInfected = np.asmatrix(datosInfectedForPlot)
-        plt.plot(personsInfected[:, 2], personsInfected[:, 3], '.', color='red')
+        plt.plot(personsInfected[:, 2], personsInfected[:, 3], '.', color='red', alpha=0.6)
     if len(datosCured) != 0:
         personsCured = np.asmatrix(datosCured)
-        plt.plot(personsCured[:, 2], personsCured[:, 3], '.', color='green')
+        plt.plot(personsCured[:, 2], personsCured[:, 3], '.', color='green', alpha=0.6)
     if len(datosQuarantine) != 0:
         personsQuarantine = np.asmatrix(datosQuarantine)
-        plt.plot(personsQuarantine[:, 2], personsQuarantine[:, 3], '.', color='black')
+        plt.plot(personsQuarantine[:, 2], personsQuarantine[:, 3], '.', color='black', alpha=0.6)
 
     totalsTime.append(float(time/(24*60)))
     totalsHealthy.append(float(len(datosHealthy)/population))
@@ -76,7 +76,7 @@ def drawPeople(time, datos, population, totalsTime, totalsHealthy, totalsInfecte
     totalsCured.append(float(len(datosCured)/population))
     totalsQuarantine.append(float(len(datosQuarantine)/population))
 
-def makeSecondPlot(totalsTime, totalsHealthy, totalsInfected, totalsCured, totalsQuarantine):
+def makeSecondPlot(population, totalsTime, totalsHealthy, totalsInfected, totalsCured, totalsQuarantine):
 
     
     thetime = np.asarray(totalsTime)
@@ -84,6 +84,12 @@ def makeSecondPlot(totalsTime, totalsHealthy, totalsInfected, totalsCured, total
     theinfected = np.asarray(totalsInfected)
     thecured = np.asarray(totalsCured)
     thequar = np.asarray(totalsQuarantine)
+    he = int(population * totalsHealthy[len(totalsHealthy)-1])
+    inf = int(population * totalsInfected[len(totalsInfected)-1])
+    cur = int(population * totalsCured[len(totalsCured)-1])
+    quar = int(population * totalsQuarantine[len(totalsQuarantine)-1])
+
+    plt.title('Susceptible: ' + str(he) + ' Infected: ' + str(inf) + ' Cured: ' + str(cur) + ' Quarantine: ' + str(quar))
 
     plt.plot(thetime, thehealthy,  color='blue')
     plt.plot(thetime, theinfected, color='red')
@@ -122,9 +128,13 @@ if __name__ == "__main__":
     totalsQuarantine = []
     plt.ioff()
     for hour in range(0, nhours):
-        fig = plt.figure(figsize = (20,10))
-        #fig, ax = plt.subplot(1, 2, figsize=(10, 5))
-        plt.subplot(1, 2, 1)
+        if options.type == 1:
+            fig = plt.figure(figsize = (20,10))
+            #fig, ax = plt.subplot(1, 2, figsize=(10, 5))
+            plt.subplot(1, 2, 1)
+        else:
+            fig = plt.figure(figsize = (10,10))
+            #fig, ax = plt.subplot(1, 2, figsize=(10, 5))
         plt.xlim(0, citysize + streetsize)
         plt.ylim(0, citysize + streetsize)    
         plt.xlabel('x [m]')
@@ -151,13 +161,13 @@ if __name__ == "__main__":
         drawPeople(time, personxy, population, totalsTime, totalsHealthy, totalsInfected, totalsCured, totalsQuarantine)
         makeSquares(citysize, buildingsize, streetsize, appartments)
         #plt.show()
-        plt.subplot(1, 2, 2)
-        plt.xlim(0, (nhours*60)/(24*60) + 1)
-        plt.ylim(0, 1.1)    
-        plt.xlabel('Day')
-        plt.ylabel('Fraction')
-        plt.title('Total population: ' + str(population))
-        makeSecondPlot(totalsTime, totalsHealthy, totalsInfected, totalsCured, totalsQuarantine)
+        if options.type == 1:
+            plt.subplot(1, 2, 2)
+            plt.xlim(0, (nhours*60)/(24*60) + 1)
+            plt.ylim(0, 1.1)    
+            plt.xlabel('Day')
+            plt.ylabel('Fraction')
+            makeSecondPlot(population, totalsTime, totalsHealthy, totalsInfected, totalsCured, totalsQuarantine)
         plt.savefig(options.dir + '/city_' + str(time) + '.png')
         plt.close(fig)
 
