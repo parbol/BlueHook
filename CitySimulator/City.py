@@ -65,14 +65,13 @@ class City:
         self.conf.loadPopulationDetails(len(self.thePopulation))
 
         if self.paint != -1:
-            print('holaaaaa')
             self.fileToSave = open('geometry.txt', 'w')
-            #self.fileToSave.write('citysize ' + str(self.conf.size) + '\n')
-            #self.fileToSave.write('lbuilding ' + str(self.conf.lBuilding) + '\n')
-            #self.fileToSave.write('lstreet ' + str(self.conf.lStreet) + '\n')
-            #self.fileToSave.write('population ' + str(self.conf.realPopulation) + '\n')
-            #for i in self.buildings:
-            #    self.fileToSave.write(str(i.floors[0].nAppartmentsPerSide) + ' ' + str(i.floors[0].lAppartment) + '\n')
+            self.fileToSave.write('citysize ' + str(self.conf.size) + '\n')
+            self.fileToSave.write('lbuilding ' + str(self.conf.lBuilding) + '\n')
+            self.fileToSave.write('lstreet ' + str(self.conf.lStreet) + '\n')
+            self.fileToSave.write('population ' + str(self.conf.realPopulation) + '\n')
+            for i in self.buildings:
+                self.fileToSave.write(str(i.floors[0].nAppartmentsPerSide) + ' ' + str(i.floors[0].lAppartment) + '\n')
         self.update()
         
         random.seed(seed)
@@ -155,9 +154,9 @@ class City:
         for j in range(0, 24*60):
             self.runMinute()
             self.time = self.time + 1
-            #if self.paint != -1:
-            #    if j % self.paint == 0:
-            #        self.storeGeometricInfo()
+            if self.paint != -1:
+                if j % self.paint == 0:
+                    self.storeGeometricInfo()
 	
     ###################################################################################################
     ###################################################################################################
@@ -334,12 +333,12 @@ class City:
                     for i in itertools.product(app.persons, app.persons):
                         if i[0] <= i[1]:
                             continue
-                        x1 = self.thePopulation[i[0]].x
-                        x2 = self.thePopulation[i[1]].x
-                        y1 = self.thePopulation[i[0]].y
-                        y2 = self.thePopulation[i[1]].y
-                        if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)) < self.conf.infectionRadius:
-                            self.fileToSave.write('Contact ' + str(i[0]) + ' ' +  str(i[1]) + ' ' + str(self.time) + '\n') 
+                        #x1 = self.thePopulation[i[0]].x
+                        #x2 = self.thePopulation[i[1]].x
+                        #y1 = self.thePopulation[i[0]].y
+                        #y2 = self.thePopulation[i[1]].y
+                        #if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)) < self.conf.infectionRadius:
+                        #    self.fileToSave.write('Contact ' + str(i[0]) + ' ' +  str(i[1]) + ' ' + str(self.time) + '\n') 
                         if not (self.thePopulation[i[0]].canInfect == 1 or self.thePopulation[i[1]].canInfect == 1):
                             continue 
                         if self.thePopulation[i[0]].health == 1 and self.thePopulation[i[1]].health == 1:
@@ -442,8 +441,8 @@ class City:
             #If healthy -> update
             if i.health == 0:
                 i.health = i.newHealth
-                if i.newHealth == 1:
-                    self.fileToSave.write('Infected ' + str(i.person) + ' ' + str(self.time) + '\n') 
+                #if i.newHealth == 1:
+                #    self.fileToSave.write('Infected ' + str(i.person) + ' ' + str(self.time) + '\n') 
             #If infected
             if i.health == 1 :
                 #If cured
@@ -452,7 +451,7 @@ class City:
                     i.symptoms = 0
                     i.quarantine = 0 
                     i.canInfect = 0
-                    self.fileToSave.write('Cured ' + str(i.person) + ' ' + str(self.time) + '\n') 
+                    #self.fileToSave.write('Cured ' + str(i.person) + ' ' + str(self.time) + '\n') 
                 #If presenting symptoms
                 elif self.time > i.timeOfIncubation:
                     if i.hasSymptoms and not i.symptoms:
