@@ -220,15 +220,28 @@ class City:
         totalSuspiciousMatches=[]
         for i in self.thePopulation:
             suspiciousMatches=[]
-            if i.quarantine==1:
+            if conf.self.strategy == 3 or conf.self.strategy==4:
+                if i.quarantine==1:
                 #List with people bluetooth matched
                 #print('Person ' + str(i.person) + ' in quarantine')
                 #print('Contacts of person are: ')
                 #print(i.bluetoothOldMatches)
-                for j in i.bluetoothOldMatches:
-                    if (self.time - j[3]) < self.conf.bluetoothTimeRange and j[4] >= self.conf.minBluetoothTime:
-                        suspiciousMatches.append(j[0])
-            totalSuspiciousMatches+=suspiciousMatches
+                    for j in i.bluetoothOldMatches:
+                        if (self.time - j[3]) < self.conf.bluetoothTimeRange and j[4] >= self.conf.minBluetoothTime:
+                            suspiciousMatches.append(j[0])
+                totalSuspiciousMatches+=suspiciousMatches
+
+            if conf.self.strategy == 5:
+                if i.symptoms==1 or i.positiveTested==1:
+                #List with people bluetooth matched
+                #print('Person ' + str(i.person) + ' in quarantine')
+                #print('Contacts of person are: ')
+                #print(i.bluetoothOldMatches)
+                    for j in i.bluetoothOldMatches:
+                        if (self.time - j[3]) < self.conf.bluetoothTimeRange and j[4] >= self.conf.minBluetoothTime:
+                            suspiciousMatches.append(j[0])
+                totalSuspiciousMatches+=suspiciousMatches
+
         return(set(totalSuspiciousMatches))
 
    ###################################################################################################
