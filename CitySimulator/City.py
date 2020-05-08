@@ -226,7 +226,7 @@ class City:
         totalSuspiciousMatches=[]
         for i in self.thePopulation:
             suspiciousMatches=[]
-            if conf.self.strategy == 3 or conf.self.strategy==4:
+            if self.conf.strategy == 3 or self.conf.strategy==4:
                 if i.quarantine==1:
                 #List with people bluetooth matched
                 #print('Person ' + str(i.person) + ' in quarantine')
@@ -237,7 +237,7 @@ class City:
                             suspiciousMatches.append(j[0])
                 totalSuspiciousMatches+=suspiciousMatches
 
-            if conf.self.strategy == 5:
+            if self.conf.strategy == 5:
                 if i.symptoms==1 or i.positiveTested==1:
                 #List with people bluetooth matched
                 #print('Person ' + str(i.person) + ' in quarantine')
