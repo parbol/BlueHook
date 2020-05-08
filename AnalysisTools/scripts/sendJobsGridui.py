@@ -63,7 +63,7 @@ bluetoothRadius BLUETOOTHRADIUS
 #Infection radius in meters
 infectionRadius 2
 #Infection probability given as probability of infecting someone being together 30 minutes
-infectionProbability 0.1
+infectionProbability PROBABILITY
 #Probability of no symptoms
 noSymptomsProbability NOSYMPTOMS
 #Strategy 0 -> no testing, 1 -> random testing, 2 -> family testing, 3 -> Bluetooth testing
@@ -83,7 +83,7 @@ minBluetoothTime 10
 
 
 
-def makeTag(thefile, tag, citysize, strategy, test, engagement, lbluetooth, asympton, nseed, nseedcity):
+def makeTag(thefile, tag, citysize, strategy, test, engagement, lbluetooth, asympton, prob, nseed, nseedcity):
 
     
     directoryName = os.getcwd() + '/' + tag
@@ -104,6 +104,7 @@ def makeTag(thefile, tag, citysize, strategy, test, engagement, lbluetooth, asym
             myCityConf = myCityConf.replace('ENGAGEMENT', engagement)                 
             myCityConf = myCityConf.replace('BLUETOOTHRADIUS', lbluetooth)                 
             myCityConf = myCityConf.replace('NOSYMPTOMS', asympton)                 
+            myCityConf = myCityConf.replace('PROBABILITY', prob)                 
             fconf = open(confFileName, 'w')
             fconf.write(myCityConf)
             fconf.close()
@@ -139,6 +140,7 @@ if __name__ == "__main__":
     parser.add_option("-e", "--engagemenet",   dest="engagement",       type="string",      default='100',          help="Fraction of people with bluetooth")
     parser.add_option("-b", "--bluetooth",     dest="lbluetooth",       type="string",      default='3.0',          help="Bluetooth length")
     parser.add_option("-a", "--asymptoms",     dest="asymptoms",        type="string",      default='0.3',          help="Fraction of asymptomatic")
+    parser.add_option("-p", "--probability",   dest="probability",      type="string",      default='0.1',          help="Probability")
 
 
     (options, args) = parser.parse_args()
@@ -149,6 +151,7 @@ if __name__ == "__main__":
     engagements = options.engagement.split(',')
     lbluetooths = options.lbluetooth.split(',')
     asymptoms = options.asymptoms.split(',')
+    probability = options.probability.split(',')
 
     runfile = open('toRun.sh', 'w')
 
@@ -157,29 +160,33 @@ if __name__ == "__main__":
         theStrategy = int(theStrategyk)
         if theStrategy == 0:
             for theCitySize in citySizes:
-                for theAsymp in asymptoms:
-                     tag = 'City_' + str(theCitySize) + '_strategy0' + '_asymp' + str(theAsymp)
-                     makeTag(runfile, tag, theCitySize, theStrategy, tests[0], engagements[0], lbluetooths[0], theAsymp, options.nseed, options.nseedcity)
+                for prob in probability:
+                    for theAsymp in asymptoms:
+                        tag = 'City_' + str(theCitySize) + '_strategy0' + '_probability' + prob + '_asymp' + str(theAsymp)
+                        makeTag(runfile, tag, theCitySize, theStrategy, tests[0], engagements[0], lbluetooths[0], theAsymp, prob, options.nseed, options.nseedcity)
         elif theStrategy == 1 or theStrategy == 2:
             for theCitySize in citySizes:
-                for theTest in tests:
-                    for theAsymp in asymptoms:
-                        tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_testing' + str(theTest) + '_asymp' + str(theAsymp)
-                        makeTag(runfile, tag, theCitySize, theStrategy, theTest, engagements[0], lbluetooths[0], theAsymp, options.nseed, options.nseedcity)
+                for prob in probability:
+                    for theTest in tests:
+                        for theAsymp in asymptoms:
+                            tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_probability' + prob + '_testing' + str(theTest) + '_asymp' + str(theAsymp)
+                            makeTag(runfile, tag, theCitySize, theStrategy, theTest, engagements[0], lbluetooths[0], theAsymp, prob, options.nseed, options.nseedcity)
         elif theStrategy == 3 or theStrategy == 5:
             for theCitySize in citySizes:
-                for theTest in tests:
-                    for theEngage in engagements:
-                        for theBlue in lbluetooths:
-                            for theAsymp in asymptoms:
-                                tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_testing' + str(theTest) + '_engage' + str(theEngage) + '_lblue' + str(theBlue) + '_asymp' + str(theAsymp)
-                                makeTag(runfile, tag, theCitySize, theStrategy, theTest, theEngage, theBlue, theAsymp, options.nseed, options.nseedcity)
+                for prob in probability:
+                    for theTest in tests:
+                        for theEngage in engagements:
+                            for theBlue in lbluetooths:
+                                for theAsymp in asymptoms:
+                                    tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_probability' + prob + '_testing' + str(theTest) + '_engage' + str(theEngage) + '_lblue' + str(theBlue) + '_asymp' + str(theAsymp)
+                                    makeTag(runfile, tag, theCitySize, theStrategy, theTest, theEngage, theBlue, theAsymp, prob, options.nseed, options.nseedcity)
         elif theStrategy == 4:
             for theCitySize in citySizes:
-                for theEngage in engagements:
-                    for theBlue in lbluetooths:
-                        for theAsymp in asymptoms:
-                            tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_engage' + str(theEngage) + '_lblue' + str(theBlue) + '_asymp' + str(theAsymp)
-                            makeTag(runfile, tag, theCitySize, theStrategy, tests[0], theEngage, theBlue, theAsymp, options.nseed, options.nseedcity)
+                    for prob in probability:
+                        for theEngage in engagements:
+                            for theBlue in lbluetooths:
+                                for theAsymp in asymptoms:
+                                    tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_probability' + prob + '_engage' + str(theEngage) + '_lblue' + str(theBlue) + '_asymp' + str(theAsymp)
+                                    makeTag(runfile, tag, theCitySize, theStrategy, tests[0], theEngage, theBlue, theAsymp, prob, options.nseed, options.nseedcity)
  
     runfile.close()
