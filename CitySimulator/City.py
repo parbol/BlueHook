@@ -24,9 +24,10 @@ class City:
         self.janus = JanusServer(serverlocation, mode)
         self.filename = filename
         self.paint = paint
-        print(self.paint)
         #Internal parameters of the city
         self.conf = CityConf(confName) 
+
+
 
         #Creating the places of the city
         listOfBuildings = self.BuildingBuilder()
@@ -75,6 +76,26 @@ class City:
         self.update()
         
         random.seed(seed)
+        for i in self.thePopulation:
+            self.goHome(i)
+        self.contactsInfection = []
+        self.contactsBluetooth = []
+        self.createContactsInfection()
+        self.createContactsBluetooth()
+
+   ###################################################################################################
+    ###################################################################################################
+    def createContactsInfection(self):
+
+        for i in range(0, self.conf.realPopulation):
+            self.contactsInfection.append([])
+
+    ###################################################################################################
+    ###################################################################################################
+    def createContactsBluetooth(self):
+
+        for i in range(0, self.conf.realPopulation):
+            self.contactsBluetooth.append([])
 
     ###################################################################################################
     ###################################################################################################
@@ -331,10 +352,104 @@ class City:
 
     ###################################################################################################
     ###################################################################################################
+    def match2(self):
+
+        #Tracking bluetooth contacts
+
+        for person in self.thePopulation:
+            if person.newposition == 1:
+                if self.conf.strategy > 2:
+                    thecontactsbluetooth = self.contactsBluetooth[person.person]
+                    print('Person: ' + str(person.person), thecontactsbluetooth)
+                    for i in thecontactsbluetooth:
+                        print(self.contactsBluetooth[i])
+                        self.contactsBluetooth[i].remove(person.person)
+                thecontactsinfection = self.contactsInfection[person.person]
+                for i in thecontactsinfection:
+                    self.contactsInfection[i].remove(person.person)
+                self.updateMatches(person.person)
+                person.newposition = 0
+
+        for i, cont in enumerate(self.contactsInfection):
+            if self.thePopulation[i].health != 0:
+                continue
+            else:
+                for j in cont:
+                    if self.thePopulation[j].canInfect == 1:
+                        self.infect2(i, j)
+        if self.conf.strategy > 2: 
+            for i, cont in enumerate(self.contactsBluetooth):
+                for j in cont:
+                    if i < j:
+                        self.bluetooth(i, j)
+
+    ###################################################################################################
+    ###################################################################################################
+    def updateMatches(self, i):
+
+        building = self.buildings[self.thePopulation[i].activeBuilding]
+        floor = building.floors[self.thePopulation[i].activeFloor]
+        app = floor.appartments[self.thePopulation[i].activeAppartment]
+        
+        self.contactsInfection[i].clear()
+
+        peopleInTheRoom = app.persons
+        for j in peopleInTheRoom:
+            if j == i:
+                continue
+            x1 = self.thePopulation[i].x
+            x2 = self.thePopulation[j].x
+            y1 = self.thePopulation[i].y
+            y2 = self.thePopulation[j].y
+            if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)) > self.conf.infectionRadius:
+                continue
+            if j not in self.contactsInfection[i]:
+                self.contactsInfection[i].append(j)
+                self.contactsInfection[j].append(i)
+        
+        if self.conf.strategy > 2:
+            #Catching the upper and lower appartmens (if any)
+            if building.nFloors > 1:
+                if app.floor == 0:
+                    peopleInTheRoom = peopleInTheRoom + building.floors[1].appartments[app.appartment].persons
+                elif app.floor == building.nFloors - 1:
+                    peopleInTheRoom = peopleInTheRoom + building.floors[building.nFloors - 2].appartments[app.appartment].persons
+                else:
+                    peopleInTheRoom = peopleInTheRoom + building.floors[app.floor - 1].appartments[app.appartment].persons + building.floors[app.floor + 1].appartments[app.appartment].persons
+                #Catching the sides (if any)
+            if floor.nAppartments > 1:
+               for s in [-1, 0, 1]:
+                   for t in [-1, 0, 1]:
+                       if abs(s*t) == 1:
+                           continue
+                       if s == 0 and t == 0:
+                           continue
+                       k = floor.existsApp(app.i + s, app.j + t)
+                       if k >= 0:
+                           peopleInTheRoom = peopleInTheRoom + building.floors[app.floor].appartments[k].persons 
+                           
+            for j in peopleInTheRoom:
+                if j == i:
+                    continue
+                x1 = self.thePopulation[i].x
+                x2 = self.thePopulation[j].x
+                y1 = self.thePopulation[i].y
+                y2 = self.thePopulation[j].y
+                z1 = self.thePopulation[i].z
+                z2 = self.thePopulation[j].z
+                if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2)) > self.conf.bluetoothRadius:
+                   continue 
+            if j not in self.contactsBluetooth[i]:
+                self.contactsBluetooth[i].append(j)
+                self.contactsBluetooth[j].append(i)
+
+    ###################################################################################################
+    ###################################################################################################
     def match(self):
    
         matchInfection = set()
         matchBluetooth = set()
+        matchBluetooth2 = set()
  
         #Find the pairs
         for building in self.buildings:
@@ -343,23 +458,25 @@ class City:
                     #Tracking infections
                     if len(app.persons) == 0:
                         continue
-                    for i in itertools.product(app.persons, app.persons):
-                        if i[0] <= i[1]:
-                            continue
+                    healthypeople = [x for x in app.persons if self.thePopulation[x].health == 0]
+                    caninfectpeople = [x for x in app.persons if self.thePopulation[x].canInfect == 1 and not self.thePopulation[x].quarantine == 1]
+                    for i in itertools.product(healthypeople, caninfectpeople):
+                        #if i[0] <= i[1]:
+                        #    continue
                         #x1 = self.thePopulation[i[0]].x
                         #x2 = self.thePopulation[i[1]].x
                         #y1 = self.thePopulation[i[0]].y
                         #y2 = self.thePopulation[i[1]].y
                         #if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)) < self.conf.infectionRadius:
                         #    self.fileToSave.write('Contact ' + str(i[0]) + ' ' +  str(i[1]) + ' ' + str(self.time) + '\n') 
-                        if not (self.thePopulation[i[0]].canInfect == 1 or self.thePopulation[i[1]].canInfect == 1):
-                            continue 
-                        if self.thePopulation[i[0]].health == 1 and self.thePopulation[i[1]].health == 1:
-                            continue
-                        if self.thePopulation[i[0]].health == 2 or self.thePopulation[i[1]].health == 2:
-                            continue
-                        if self.thePopulation[i[0]].quarantine == 1 or self.thePopulation[i[1]].quarantine == 1:
-                            continue
+                        #if not (self.thePopulation[i[0]].canInfect == 1 or self.thePopulation[i[1]].canInfect == 1):
+                        #    continue 
+                        #if self.thePopulation[i[0]].health == 1 and self.thePopulation[i[1]].health == 1:
+                        #    continue
+                        #if self.thePopulation[i[0]].health == 2 or self.thePopulation[i[1]].health == 2:
+                        #    continue
+                        #if self.thePopulation[i[0]].quarantine == 1 or self.thePopulation[i[1]].quarantine == 1:
+                        #    continue
                         x1 = self.thePopulation[i[0]].x
                         x2 = self.thePopulation[i[1]].x
                         y1 = self.thePopulation[i[0]].y
@@ -368,31 +485,9 @@ class City:
                             continue 
                         matchInfection.add(i) 
                     #Tracking bluetooth contacts
-                    if self.conf.strategy == 3 or self.conf.strategy == 4 or self.conf.strategy ==5:
-                        listOfPersons = app.persons
-                        if len(listOfPersons) == 0:
-                            continue
-                        #Catching the upper and lower appartmens (if any)
-                        if building.nFloors > 1:
-                            if app.floor == 0:
-                                listOfPersons = listOfPersons + building.floors[1].appartments[app.appartment].persons
-                            elif app.floor == building.nFloors - 1:
-                                listOfPersons = listOfPersons + building.floors[building.nFloors - 2].appartments[app.appartment].persons
-                            else:
-                                listOfPersons = listOfPersons + building.floors[app.floor - 1].appartments[app.appartment].persons + building.floors[app.floor + 1].appartments[app.appartment].persons
-                        #Catching the sides (if any)
-                        if floor.nAppartments > 1:
-                            for s in [-1, 0, 1]:
-                                for t in [-1, 0, 1]:
-                                    if abs(s*t) == 1:
-                                        continue
-                                    if s == 0 and t == 0:
-                                        continue
-                                    k = floor.existsApp(app.i + s, app.j + t)
-                                    if k >= 0:
-                                        listOfPersons = listOfPersons + building.floors[app.floor].appartments[k].persons 
-
-                        for i in itertools.product(listOfPersons, listOfPersons):
+                    if self.conf.strategy > 2:
+                        listOfPersonsWithBluetooth = [x for x in app.persons if (self.thePopulation[x].quarantine == 0 and self.thePopulation[x].bluetoothOn != 0)]
+                        for i in itertools.product(listOfPersonsWithBluetooth, listOfPersonsWithBluetooth):
                             if i[0] <= i[1]:
                                 continue
                             x1 = self.thePopulation[i[0]].x
@@ -403,16 +498,52 @@ class City:
                             z2 = self.thePopulation[i[1]].z
                             if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2)) > self.conf.bluetoothRadius:
                                 continue 
+                            #This list is for bluetooth contacts to be inserted in pairs
                             matchBluetooth.add(i) 
+                        listOfPersonsOthers = []
+                        #Catching the upper and lower appartmens (if any)
+                        if building.nFloors > 1:
+                            if app.floor == 0:
+                                listOfPersonsOthers = listOfPersonsOthers + building.floors[1].appartments[app.appartment].persons 
+                            elif app.floor == building.nFloors - 1:
+                                listOfPersonsOthers = listOfPersonsOthers + building.floors[building.nFloors-2].appartments[app.appartment].persons 
+                            else:
+                                listOfPersonsOthers = listOfPersonsOthers + building.floors[app.floor-1].appartments[app.appartment].persons
+                                listOfPersonsOthers = listOfPersonsOthers + building.floors[app.floor+1].appartments[app.appartment].persons
+                        #Catching the sides (if any)
+                        if floor.nAppartments > 1:
+                            for s in [-1, 0, 1]:
+                                for t in [-1, 0, 1]:
+                                    if abs(s*t) == 1:
+                                        continue
+                                    if s == 0 and t == 0:
+                                        continue
+                                    k = floor.existsApp(app.i + s, app.j + t)
+                                    if k >= 0:
+                                        listOfPersonsOthers = listOfPersonsOthers + building.floors[app.floor].appartments[k].persons 
+                        listOfPersonsOthersWithBluetooth = [x for x in listOfPersonsOthers if (self.thePopulation[x].quarantine == 0 and self.thePopulation[x].bluetoothOn != 0)]
+                        for i in itertools.product(listOfPersonsWithBluetooth, listOfPersonsOthersWithBluetooth):
+                            x1 = self.thePopulation[i[0]].x
+                            x2 = self.thePopulation[i[1]].x
+                            y1 = self.thePopulation[i[0]].y
+                            y2 = self.thePopulation[i[1]].y
+                            z1 = self.thePopulation[i[0]].z
+                            z2 = self.thePopulation[i[1]].z
+                            if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2)) > self.conf.bluetoothRadius:
+                                continue 
+                            #This is called to put only once this contact because the other will come later 
+                            matchBluetooth2.add(i) 
  
         #Going for infections
         for i in matchInfection:
             self.infect(i[0], i[1])
                         
         #Going for bluetooth contact
-        if self.conf.strategy == 3 or self.conf.strategy == 4 or self.conf.strategy == 5:
+        if self.conf.strategy > 2:
             for i in matchBluetooth:
                 self.bluetooth(i[0], i[1])
+            for i in matchBluetooth2:
+                self.bluetooth2(i[0], i[1])
                         
     ###################################################################################################
     ###################################################################################################
@@ -431,12 +562,31 @@ class City:
     ###################################################################################################
     def bluetooth(self, person1, person2):
    
-        if self.thePopulation[person1].quarantine == 1 or self.thePopulation[person2].quarantine == 1:
-            return
-        if self.thePopulation[person1].bluetoothOn== 0 or self.thePopulation[person2].bluetoothOn==0:
-            return
+        #if self.thePopulation[person1].quarantine == 1 or self.thePopulation[person2].quarantine == 1:
+        #    return
+        #if self.thePopulation[person1].bluetoothOn== 0 or self.thePopulation[person2].bluetoothOn==0:
+        #    return
         self.thePopulation[person1].bluetoothMatch(person2, self.thePopulation[person1].x, self.thePopulation[person1].y, self.time)
         self.thePopulation[person2].bluetoothMatch(person1, self.thePopulation[person2].x, self.thePopulation[person2].y, self.time)
+
+    ###################################################################################################
+    ###################################################################################################
+    def infect2(self, person1, person2):
+        dice = random.random()
+        if dice < self.conf.instantInfectionProbability:
+            self.thePopulation[person1].infect(self.time)
+            #print('Person: ' + str(person2) + ' infected person: ' + str(person1))
+
+    ###################################################################################################
+    ###################################################################################################
+    def bluetooth2(self, person1, person2):
+   
+        #if self.thePopulation[person1].quarantine == 1 or self.thePopulation[person2].quarantine == 1:
+        #    return
+        #if self.thePopulation[person1].bluetoothOn== 0 or self.thePopulation[person2].bluetoothOn==0:
+        #    return
+        #self.thePopulation[person1].bluetoothMatch(person2, self.thePopulation[person1].x, self.thePopulation[person1].y, self.time)
+        self.thePopulation[person1].bluetoothMatch(person2, self.thePopulation[person1].x, self.thePopulation[person1].y, self.time)
 
     ###################################################################################################
     ###################################################################################################
@@ -486,6 +636,7 @@ class City:
         person.activeAppartment = person.residentialAppartment
         self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)  
         [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
+        person.newposition = 1
         person.howlongcounter = 0
         person.howlong = int(round(random.gammavariate(self.conf.timescalehome, 1)))
 
@@ -496,6 +647,7 @@ class City:
         person.howlongcounter = person.howlongcounter + 1
         if person.howlongcounter >= person.howlong:
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
+            person.newposition = 1
             person.howlongcounter = 0
             person.howlong = int(round(random.gammavariate(self.conf.timescalehome, 1)))
 
@@ -510,6 +662,7 @@ class City:
         person.activeAppartment = person.workplaceAppartment
         self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)  
         [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
+        person.newposition = 1
         person.howlongcounter = 0
         person.howlong = int(round(random.gammavariate(self.conf.timescalework, 1)))
 
@@ -520,6 +673,7 @@ class City:
         person.howlongcounter = person.howlongcounter + 1
         if person.howlongcounter >= person.howlong:
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
+            person.newposition = 1
             person.howlongcounter = 0
             person.howlong = int(round(random.gammavariate(self.conf.timescalework, 1)))
 
@@ -536,6 +690,7 @@ class City:
         person.activeAppartment = random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments-1)
         self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)
         [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
+        person.newposition = 1
         person.howlongcounter = 0
         person.howlong = int(round(random.gammavariate(self.conf.timescaleleisure, 1)))
 
@@ -555,11 +710,13 @@ class City:
             person.activeAppartment = random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments-1)
             self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
+            person.newposition = 1
             person.howlongcounter = 0
             person.howlong = int(round(random.gammavariate(self.conf.timescaleleisure, 1)))
  
         if person.howlongcounter >= person.howlong:
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[0].appartments[person.activeAppartment].GetRandomPosition()
+            person.newposition = 1
             person.howlongcounter = 0
             person.howlong = int(round(random.gammavariate(self.conf.timescaleleisure, 1)))
         
