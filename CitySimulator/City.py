@@ -449,6 +449,7 @@ class City:
    
         matchInfection = set()
         matchBluetooth = set()
+        matchBluetooth2 = set()
  
         #Find the pairs
         for building in self.buildings:
@@ -484,31 +485,9 @@ class City:
                             continue 
                         matchInfection.add(i) 
                     #Tracking bluetooth contacts
-                    if self.conf.strategy == 3 or self.conf.strategy == 4 or self.conf.strategy ==5:
-                        listOfPersons = app.persons
-                        if len(listOfPersons) == 0:
-                            continue
-                        #Catching the upper and lower appartmens (if any)
-                        if building.nFloors > 1:
-                            if app.floor == 0:
-                                listOfPersons = listOfPersons + building.floors[1].appartments[app.appartment].persons
-                            elif app.floor == building.nFloors - 1:
-                                listOfPersons = listOfPersons + building.floors[building.nFloors - 2].appartments[app.appartment].persons
-                            else:
-                                listOfPersons = listOfPersons + building.floors[app.floor - 1].appartments[app.appartment].persons + building.floors[app.floor + 1].appartments[app.appartment].persons
-                        #Catching the sides (if any)
-                        if floor.nAppartments > 1:
-                            for s in [-1, 0, 1]:
-                                for t in [-1, 0, 1]:
-                                    if abs(s*t) == 1:
-                                        continue
-                                    if s == 0 and t == 0:
-                                        continue
-                                    k = floor.existsApp(app.i + s, app.j + t)
-                                    if k >= 0:
-                                        listOfPersons = listOfPersons + building.floors[app.floor].appartments[k].persons 
-
-                        for i in itertools.product(listOfPersons, listOfPersons):
+                    if self.conf.strategy > 2:
+                        listOfPersonsWithBluetooth = [x for x in app.persons if (self.thePopulation[x].quarantine == 0 and self.thePopulation[x].bluetoothOn != 0)]
+                        for i in itertools.product(listOfPersonsWithBluetooth, listOfPersonsWithBluetooth):
                             if i[0] <= i[1]:
                                 continue
                             x1 = self.thePopulation[i[0]].x
@@ -519,16 +498,52 @@ class City:
                             z2 = self.thePopulation[i[1]].z
                             if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2)) > self.conf.bluetoothRadius:
                                 continue 
+                            #This list is for bluetooth contacts to be inserted in pairs
                             matchBluetooth.add(i) 
+                        listOfPersonsOthers = []
+                        #Catching the upper and lower appartmens (if any)
+                        if building.nFloors > 1:
+                            if app.floor == 0:
+                                listOfPersonsOthers = listOfPersonsOthers + building.floors[1].appartments[app.appartment].persons 
+                            elif app.floor == building.nFloors - 1:
+                                listOfPersonsOthers = listOfPersonsOthers + building.floors[building.nFloors-2].appartments[app.appartment].persons 
+                            else:
+                                listOfPersonsOthers = listOfPersonsOthers + building.floors[app.floor-1].appartments[app.appartment].persons
+                                listOfPersonsOthers = listOfPersonsOthers + building.floors[app.floor+1].appartments[app.appartment].persons
+                        #Catching the sides (if any)
+                        if floor.nAppartments > 1:
+                            for s in [-1, 0, 1]:
+                                for t in [-1, 0, 1]:
+                                    if abs(s*t) == 1:
+                                        continue
+                                    if s == 0 and t == 0:
+                                        continue
+                                    k = floor.existsApp(app.i + s, app.j + t)
+                                    if k >= 0:
+                                        listOfPersonsOthers = listOfPersonsOthers + building.floors[app.floor].appartments[k].persons 
+                        listOfPersonsOthersWithBluetooth = [x for x in listOfPersonsOthers if (self.thePopulation[x].quarantine == 0 and self.thePopulation[x].bluetoothOn != 0)]
+                        for i in itertools.product(listOfPersonsWithBluetooth, listOfPersonsOthersWithBluetooth):
+                            x1 = self.thePopulation[i[0]].x
+                            x2 = self.thePopulation[i[1]].x
+                            y1 = self.thePopulation[i[0]].y
+                            y2 = self.thePopulation[i[1]].y
+                            z1 = self.thePopulation[i[0]].z
+                            z2 = self.thePopulation[i[1]].z
+                            if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2)) > self.conf.bluetoothRadius:
+                                continue 
+                            #This is called to put only once this contact because the other will come later 
+                            matchBluetooth2.add(i) 
  
         #Going for infections
         for i in matchInfection:
             self.infect(i[0], i[1])
                         
         #Going for bluetooth contact
-        if self.conf.strategy == 3 or self.conf.strategy == 4 or self.conf.strategy == 5:
+        if self.conf.strategy > 2:
             for i in matchBluetooth:
                 self.bluetooth(i[0], i[1])
+            for i in matchBluetooth2:
+                self.bluetooth2(i[0], i[1])
                         
     ###################################################################################################
     ###################################################################################################
@@ -547,10 +562,10 @@ class City:
     ###################################################################################################
     def bluetooth(self, person1, person2):
    
-        if self.thePopulation[person1].quarantine == 1 or self.thePopulation[person2].quarantine == 1:
-            return
-        if self.thePopulation[person1].bluetoothOn== 0 or self.thePopulation[person2].bluetoothOn==0:
-            return
+        #if self.thePopulation[person1].quarantine == 1 or self.thePopulation[person2].quarantine == 1:
+        #    return
+        #if self.thePopulation[person1].bluetoothOn== 0 or self.thePopulation[person2].bluetoothOn==0:
+        #    return
         self.thePopulation[person1].bluetoothMatch(person2, self.thePopulation[person1].x, self.thePopulation[person1].y, self.time)
         self.thePopulation[person2].bluetoothMatch(person1, self.thePopulation[person2].x, self.thePopulation[person2].y, self.time)
 
@@ -571,7 +586,7 @@ class City:
         #if self.thePopulation[person1].bluetoothOn== 0 or self.thePopulation[person2].bluetoothOn==0:
         #    return
         #self.thePopulation[person1].bluetoothMatch(person2, self.thePopulation[person1].x, self.thePopulation[person1].y, self.time)
-        self.thePopulation[person2].bluetoothMatch(person1, self.thePopulation[person2].x, self.thePopulation[person2].y, self.time)
+        self.thePopulation[person1].bluetoothMatch(person2, self.thePopulation[person1].x, self.thePopulation[person1].y, self.time)
 
     ###################################################################################################
     ###################################################################################################
