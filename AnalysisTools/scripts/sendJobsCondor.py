@@ -33,6 +33,8 @@ averagePopulationPerAppartment 3
 nFloorIndex 5
 #Mean of the number of appartments per floor
 nAppartmentIndex 3
+#Number of leisure places every person visits
+nLeisurePlacesForPerson 3
 #Number of hot points in each appartment
 nHotPoints 4
 #Length of the individual hot point

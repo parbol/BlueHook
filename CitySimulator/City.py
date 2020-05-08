@@ -27,8 +27,6 @@ class City:
         #Internal parameters of the city
         self.conf = CityConf(confName) 
 
-
-
         #Creating the places of the city
         listOfBuildings = self.BuildingBuilder()
         #This is the main list of buildings  
@@ -78,24 +76,6 @@ class City:
         random.seed(seed)
         for i in self.thePopulation:
             self.goHome(i)
-        self.contactsInfection = []
-        self.contactsBluetooth = []
-        self.createContactsInfection()
-        self.createContactsBluetooth()
-
-   ###################################################################################################
-    ###################################################################################################
-    def createContactsInfection(self):
-
-        for i in range(0, self.conf.realPopulation):
-            self.contactsInfection.append([])
-
-    ###################################################################################################
-    ###################################################################################################
-    def createContactsBluetooth(self):
-
-        for i in range(0, self.conf.realPopulation):
-            self.contactsBluetooth.append([])
 
     ###################################################################################################
     ###################################################################################################
@@ -147,7 +127,14 @@ class City:
                         buildingworkplace = self.workBuildingIndexes[random.randint(0, self.conf.nWorkBuildings-1)]
                         floorworkplace = random.randint(0, self.buildings[buildingworkplace].nFloors-1)
                         appartmentworkplace = random.randint(0, self.buildings[buildingworkplace].floors[floorworkplace].nAppartments-1)
-                        person = Person(personId, personindex, house.building, floor.floor, app.appartment, buildingworkplace, floorworkplace, appartmentworkplace, self.conf) 
+                        nleisureplacesForPerson =  1 + int(round(random.gammavariate(self.conf.nLeisurePlacesForPerson, 1)))
+                        theleisurebuildings = []
+                        if nleisureplacesForPerson >= len(self.leisureBuildingIndexes):
+                            theleisurebuildings = self.leisureBuildingIndexes
+                        else:
+                            for i in range(0, nleisureplacesForPerson):
+                                theleisurebuildings.append(self.leisureBuildingIndexes[random.randint(0, self.conf.nLeisureBuildings-1)])
+                        person = Person(personId, personindex, house.building, floor.floor, app.appartment, buildingworkplace, floorworkplace, appartmentworkplace, theleisurebuildings, self.conf) 
                         thepopulation.append(person)
                         indexofpeople.append(personindex)
                         personindex = personindex + 1
@@ -235,8 +222,6 @@ class City:
 
    ###################################################################################################
    ###################################################################################################
-
-
     def suspiciousBluetoothMatches(self):
         totalSuspiciousMatches=[]
         for i in self.thePopulation:
@@ -265,10 +250,8 @@ class City:
 
         return(set(totalSuspiciousMatches))
 
-   ###################################################################################################
-   ###################################################################################################
-
-
+    ###################################################################################################
+    ###################################################################################################
     def runTests(self,day):
        
         strategy=self.conf.strategy
@@ -349,99 +332,6 @@ class City:
             dailyQuarantined=[x for x in notYetTested if x not in dailyTested]
             for i in dailyQuarantined:
                 self.thePopulation[i].quarantine=1
-
-    ###################################################################################################
-    ###################################################################################################
-    def match2(self):
-
-        #Tracking bluetooth contacts
-
-        for person in self.thePopulation:
-            if person.newposition == 1:
-                if self.conf.strategy > 2:
-                    thecontactsbluetooth = self.contactsBluetooth[person.person]
-                    print('Person: ' + str(person.person), thecontactsbluetooth)
-                    for i in thecontactsbluetooth:
-                        print(self.contactsBluetooth[i])
-                        self.contactsBluetooth[i].remove(person.person)
-                thecontactsinfection = self.contactsInfection[person.person]
-                for i in thecontactsinfection:
-                    self.contactsInfection[i].remove(person.person)
-                self.updateMatches(person.person)
-                person.newposition = 0
-
-        for i, cont in enumerate(self.contactsInfection):
-            if self.thePopulation[i].health != 0:
-                continue
-            else:
-                for j in cont:
-                    if self.thePopulation[j].canInfect == 1:
-                        self.infect2(i, j)
-        if self.conf.strategy > 2: 
-            for i, cont in enumerate(self.contactsBluetooth):
-                for j in cont:
-                    if i < j:
-                        self.bluetooth(i, j)
-
-    ###################################################################################################
-    ###################################################################################################
-    def updateMatches(self, i):
-
-        building = self.buildings[self.thePopulation[i].activeBuilding]
-        floor = building.floors[self.thePopulation[i].activeFloor]
-        app = floor.appartments[self.thePopulation[i].activeAppartment]
-        
-        self.contactsInfection[i].clear()
-
-        peopleInTheRoom = app.persons
-        for j in peopleInTheRoom:
-            if j == i:
-                continue
-            x1 = self.thePopulation[i].x
-            x2 = self.thePopulation[j].x
-            y1 = self.thePopulation[i].y
-            y2 = self.thePopulation[j].y
-            if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)) > self.conf.infectionRadius:
-                continue
-            if j not in self.contactsInfection[i]:
-                self.contactsInfection[i].append(j)
-                self.contactsInfection[j].append(i)
-        
-        if self.conf.strategy > 2:
-            #Catching the upper and lower appartmens (if any)
-            if building.nFloors > 1:
-                if app.floor == 0:
-                    peopleInTheRoom = peopleInTheRoom + building.floors[1].appartments[app.appartment].persons
-                elif app.floor == building.nFloors - 1:
-                    peopleInTheRoom = peopleInTheRoom + building.floors[building.nFloors - 2].appartments[app.appartment].persons
-                else:
-                    peopleInTheRoom = peopleInTheRoom + building.floors[app.floor - 1].appartments[app.appartment].persons + building.floors[app.floor + 1].appartments[app.appartment].persons
-                #Catching the sides (if any)
-            if floor.nAppartments > 1:
-               for s in [-1, 0, 1]:
-                   for t in [-1, 0, 1]:
-                       if abs(s*t) == 1:
-                           continue
-                       if s == 0 and t == 0:
-                           continue
-                       k = floor.existsApp(app.i + s, app.j + t)
-                       if k >= 0:
-                           peopleInTheRoom = peopleInTheRoom + building.floors[app.floor].appartments[k].persons 
-                           
-            for j in peopleInTheRoom:
-                if j == i:
-                    continue
-                x1 = self.thePopulation[i].x
-                x2 = self.thePopulation[j].x
-                y1 = self.thePopulation[i].y
-                y2 = self.thePopulation[j].y
-                z1 = self.thePopulation[i].z
-                z2 = self.thePopulation[j].z
-                if math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2)) > self.conf.bluetoothRadius:
-                   continue 
-            if j not in self.contactsBluetooth[i]:
-                self.contactsBluetooth[i].append(j)
-                self.contactsBluetooth[j].append(i)
 
     ###################################################################################################
     ###################################################################################################
@@ -571,14 +461,6 @@ class City:
 
     ###################################################################################################
     ###################################################################################################
-    def infect2(self, person1, person2):
-        dice = random.random()
-        if dice < self.conf.instantInfectionProbability:
-            self.thePopulation[person1].infect(self.time)
-            #print('Person: ' + str(person2) + ' infected person: ' + str(person1))
-
-    ###################################################################################################
-    ###################################################################################################
     def bluetooth2(self, person1, person2):
    
         #if self.thePopulation[person1].quarantine == 1 or self.thePopulation[person2].quarantine == 1:
@@ -636,7 +518,6 @@ class City:
         person.activeAppartment = person.residentialAppartment
         self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)  
         [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
-        person.newposition = 1
         person.howlongcounter = 0
         person.howlong = int(round(random.gammavariate(self.conf.timescalehome, 1)))
 
@@ -647,7 +528,6 @@ class City:
         person.howlongcounter = person.howlongcounter + 1
         if person.howlongcounter >= person.howlong:
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
-            person.newposition = 1
             person.howlongcounter = 0
             person.howlong = int(round(random.gammavariate(self.conf.timescalehome, 1)))
 
@@ -662,7 +542,6 @@ class City:
         person.activeAppartment = person.workplaceAppartment
         self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)  
         [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
-        person.newposition = 1
         person.howlongcounter = 0
         person.howlong = int(round(random.gammavariate(self.conf.timescalework, 1)))
 
@@ -673,7 +552,6 @@ class City:
         person.howlongcounter = person.howlongcounter + 1
         if person.howlongcounter >= person.howlong:
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
-            person.newposition = 1
             person.howlongcounter = 0
             person.howlong = int(round(random.gammavariate(self.conf.timescalework, 1)))
 
@@ -685,12 +563,17 @@ class City:
         person.lastposition = 2
         person.leisurehowlong = int(round(random.gammavariate(self.conf.timescaleleisuresite, 1)))
         person.leisurehowlongcounter = 0
-        person.activeBuilding = self.buildings[self.leisureBuildingIndexes[random.randint(0, self.conf.nLeisureBuildings-1)]].building
-        person.activeFloor = 0
-        person.activeAppartment = random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments-1)
+        dice = random.random()
+        if dice < 0.9:
+            person.activeBuilding = self.buildings[person.theleisurebuildings[random.randint(0, person.ntheleisurebuildings-1)]].building
+            person.activeFloor = 0
+            person.activeAppartment = random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments-1)
+        else:
+            person.activeBuilding = self.buildings[self.leisureBuildingIndexes[random.randint(0, self.conf.nLeisureBuildings-1)]].building
+            person.activeFloor = 0
+            person.activeAppartment = random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments-1)
         self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)
         [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
-        person.newposition = 1
         person.howlongcounter = 0
         person.howlong = int(round(random.gammavariate(self.conf.timescaleleisure, 1)))
 
@@ -705,18 +588,22 @@ class City:
             person.leisurehowlong = int(round(random.gammavariate(self.conf.timescaleleisuresite, 1)))
             person.leisurehowlongcounter = 0 
             self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].removePerson(person.person)  
-            person.activeBuilding = self.buildings[self.leisureBuildingIndexes[random.randint(0, self.conf.nLeisureBuildings-1)]].building
-            person.activeFloor = 0
-            person.activeAppartment = random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments-1)
+            dice = random.random()
+            if dice < 0.9:
+                person.activeBuilding = self.buildings[person.theleisurebuildings[random.randint(0, person.ntheleisurebuildings-1)]].building
+                person.activeFloor = 0
+                person.activeAppartment = random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments-1)
+            else:
+                person.activeBuilding = self.buildings[self.leisureBuildingIndexes[random.randint(0, self.conf.nLeisureBuildings-1)]].building
+                person.activeFloor = 0
+                person.activeAppartment = random.randint(0, self.buildings[person.activeBuilding].floors[0].nAppartments-1)
             self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].addPerson(person.person)
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[person.activeFloor].appartments[person.activeAppartment].GetRandomPosition()
-            person.newposition = 1
             person.howlongcounter = 0
             person.howlong = int(round(random.gammavariate(self.conf.timescaleleisure, 1)))
  
         if person.howlongcounter >= person.howlong:
             [person.x, person.y] = self.buildings[person.activeBuilding].floors[0].appartments[person.activeAppartment].GetRandomPosition()
-            person.newposition = 1
             person.howlongcounter = 0
             person.howlong = int(round(random.gammavariate(self.conf.timescaleleisure, 1)))
         

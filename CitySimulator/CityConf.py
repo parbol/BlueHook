@@ -37,6 +37,8 @@ class CityConf:
                 self.nFloorIndex= int(b)
             if a == 'nAppartmentIndex':
                 self.nAppartmentIndex = int(b)
+            if a == 'nLeisurePlacesForPerson':
+                self.nLeisurePlacesForPerson = int(b)
             if a == 'nHotPoints':
                 self.nHotPoints = int(b)
             if a == 'lengthOfHotPoint':

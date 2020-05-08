@@ -8,7 +8,7 @@ from JanusAPI.JanusServer import JanusServer
 
 class Person:
 
-    def __init__(self, theId, person, house, floor, appartment, workplace, floorworkplace, appartmentworkplace, conf):
+    def __init__(self, theId, person, house, floor, appartment, workplace, floorworkplace, appartmentworkplace, theleisurebuildings, conf):
 
         self.theId = theId
         self.person = person
@@ -22,6 +22,8 @@ class Person:
         self.activeBuilding = house
         self.activeFloor = floor
         self.activeAppartment = appartment
+        self.theleisurebuildings = theleisurebuildings
+        self.ntheleisurebuildings = len(theleisurebuildings)
         self.x = 0
         self.y = 0
         self.z = floor * 3
