@@ -220,19 +220,58 @@ class City:
             totalSuspiciousFamilies+=suspiciousFamily
         return(set(totalSuspiciousFamilies))
 
-   ###################################################################################################
-   ###################################################################################################
-    def suspiciousBluetoothMatches(self):
-        totalSuspiciousMatches=[]
+    ###################################################################################################
+    ###################################################################################################
+    def suspiciousBluetoothMatchesWithTime(self):
+
+        mydict = dict()
         for i in self.thePopulation:
-            suspiciousMatches=[]
-            if self.conf.strategy == 3 or self.conf.strategy==4:
-                if i.quarantine==1:
+            if i.quarantine==1:
                 #List with people bluetooth matched
                 #print('Person ' + str(i.person) + ' in quarantine')
                 #print('Contacts of person are: ')
                 #print(i.bluetoothOldMatches)
-                    for j in i.bluetoothOldMatches:
+                thebluetooth = i.bluetoothOldMatches + i.bluetoothmatches    
+                for j in thebluetooth:
+                    if (self.time - j[3]) < self.conf.bluetoothTimeRange:
+                       if j[0] in mydict:
+                           mydict[j[0]] += j[4]
+                       else:
+                           mydict[j[0]] = j[4]
+
+        totalSuspiciousMatches = []
+        k = sorted(mydict.items(), key=lambda x: x[1], reverse=True)
+        for c in k:
+            totalSuspiciousMatches.append(c[0]) 
+ 
+        return(totalSuspiciousMatches)
+
+    ###################################################################################################
+    ###################################################################################################
+    def suspiciousBluetoothMatches(self):
+        totalSuspiciousMatches=[]
+        for i in self.thePopulation:
+            suspiciousMatches=[]
+            if self.conf.strategy == 3:
+                if i.quarantine==1:
+                    #List with people bluetooth matched
+                    #print('Person ' + str(i.person) + ' in quarantine')
+                    #print('Contacts of person are: ')
+                    #print(i.bluetoothOldMatches)
+                    thebluetooth = i.bluetoothOldMatches + i.bluetoothmatches    
+                    for j in thebluetooth:
+                        if (self.time - j[3]) < self.conf.bluetoothTimeRange and j[4] >= self.conf.minBluetoothTime:
+                            suspiciousMatches.append(j[0])
+                totalSuspiciousMatches+=suspiciousMatches
+
+            if self.conf.strategy==4:
+                if i.symptoms==1:
+                #List with people bluetooth matched
+                #print('Person ' + str(i.person) + ' in quarantine')
+                #print('Contacts of person are: ')
+                #print(i.bluetoothOldMatches)
+                    thebluetooth = i.bluetoothOldMatches + i.bluetoothmatches    
+                    for j in thebluetooth:
                         if (self.time - j[3]) < self.conf.bluetoothTimeRange and j[4] >= self.conf.minBluetoothTime:
                             suspiciousMatches.append(j[0])
                 totalSuspiciousMatches+=suspiciousMatches
@@ -243,7 +282,8 @@ class City:
                 #print('Person ' + str(i.person) + ' in quarantine')
                 #print('Contacts of person are: ')
                 #print(i.bluetoothOldMatches)
-                    for j in i.bluetoothOldMatches:
+                    thebluetooth = i.bluetoothOldMatches + i.bluetoothmatches    
+                    for j in thebluetooth:
                         if (self.time - j[3]) < self.conf.bluetoothTimeRange and j[4] >= self.conf.minBluetoothTime:
                             suspiciousMatches.append(j[0])
                 totalSuspiciousMatches+=suspiciousMatches
@@ -280,6 +320,12 @@ class City:
             #print('Testing: ')
             #print(notYetTested)
 
+        #Testing bluetooth matches and sending the no tested to quarantine - strategy 5
+        if (strategy == 6):
+            notYetTested=[x for x in self.suspiciousBluetoothMatchesWithTime() if x not in self.tested and self.thePopulation[x].symptoms==0 and self.thePopulation[x].health!=2]
+            #print('Testing: ')
+            #print(notYetTested)
+
         #Check if the total numbers of test is bigger than the population to be tested
         if strategy < 4:
             if len(notYetTested) >= self.conf.numberOfTestsPerDay:
@@ -295,6 +341,7 @@ class City:
                 citizen=self.thePopulation[i]
                 if citizen.health == 1:
                     citizen.quarantine = 1
+                    citizen.quarantineTime =self.time
                     citizen.positiveTested=1
                     self.tested.append(i)
  
@@ -303,7 +350,8 @@ class City:
             for i in dailyTested:
                 citizen=self.thePopulation[i]
                 citizen.quarantine = 1
-
+                citizen.quarantineTime=self.time
+ 
         elif strategy == 5:
 
             if len(notYetTested) >= self.conf.numberOfTestsPerDay:
@@ -319,6 +367,7 @@ class City:
                 citizen=self.thePopulation[i]
                 if citizen.health == 1:
                     citizen.quarantine = 1
+                    citizen.quarantineTime=self.time
                     citizen.positiveTested=1
                     self.tested.append(i)
                 elif citizen.health == 0:
@@ -332,6 +381,26 @@ class City:
             dailyQuarantined=[x for x in notYetTested if x not in dailyTested]
             for i in dailyQuarantined:
                 self.thePopulation[i].quarantine=1
+
+        #Check if the total numbers of test is bigger than the population to be tested
+        if strategy == 6:
+            if len(notYetTested) >= self.conf.numberOfTestsPerDay:
+                dailyTested=notYetTested[0:self.conf.numberOfTestsPerDay]
+            else:
+                dailyTested=notYetTested
+           
+            for i in dailyTested:
+                #print('Testing: ', i)
+                #resb = self.thePopulation[i].residentialBuilding
+                #resf = self.thePopulation[i].residentialFloor
+                #resa = self.thePopulation[i].residentialAppartment
+                citizen=self.thePopulation[i]
+                if citizen.health == 1:
+                    citizen.quarantine = 1
+                    citizen.quarantineTime=self.time
+                    citizen.positiveTested=1
+                    self.tested.append(i)
+ 
 
     ###################################################################################################
     ###################################################################################################
@@ -483,6 +552,9 @@ class City:
 
         #For each person
         for i in self.thePopulation:
+            #check if the citizen must go out from quarantine
+            if self.conf.strategy == 4 and (i.hasSymptoms==0 or i.health==0) and i.quarantine ==1 and (self.time - i.quarantineTime) > 23040:
+                i.quarantine = 0 
             #If healthy -> update
             if i.health == 0:
                 i.health = i.newHealth
@@ -502,6 +574,7 @@ class City:
                     if i.hasSymptoms and not i.symptoms:
                         i.symptoms = 1
                         i.quarantine = 1
+                        i.quarantineTime=self.time
                 #If passed infection time
                 elif self.time > i.timeToInfect:
                     i.canInfect = 1
