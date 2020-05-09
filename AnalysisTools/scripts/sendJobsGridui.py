@@ -171,7 +171,7 @@ if __name__ == "__main__":
                         for theAsymp in asymptoms:
                             tag = 'City_' + str(theCitySize) + '_strategy' + str(theStrategy) + '_probability' + prob + '_testing' + str(theTest) + '_asymp' + str(theAsymp)
                             makeTag(runfile, tag, theCitySize, theStrategy, theTest, engagements[0], lbluetooths[0], theAsymp, prob, options.nseed, options.nseedcity)
-        elif theStrategy == 3 or theStrategy == 5:
+        elif theStrategy == 3 or theStrategy == 5 or theStrategy == 6:
             for theCitySize in citySizes:
                 for prob in probability:
                     for theTest in tests:
