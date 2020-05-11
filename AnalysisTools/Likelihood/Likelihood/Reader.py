@@ -15,7 +15,7 @@ class Reader:
         self.lt = self.lastTime()
         self.infected = []
         self.status = []
-        self.contacts = [[[]]]
+        self.contacts = []
         self.readInfected()
         self.readContacts()
         self.readStatus()
@@ -45,13 +45,14 @@ class Reader:
     ###############################################################
     def readContacts(self):
        
-        vk = [[[]]]
+        vk = []
         for i in range(self.npersons):
-            vk.append([[]])
-            self.contacts.append([[]])
+            vk.append([])
+            self.contacts.append([])
             for j in range(self.npersons):
                 vk[i].append([])
                 self.contacts[i].append([])
+
 
         f = open(self.fileName)
         for i in f.readlines():
@@ -125,6 +126,7 @@ class Reader:
     def lastTime(self):
 
         t = 0
+        time = 0
         f = open(self.fileName)
         for i in f.readlines():
             if i.split()[0] == 'Infected':

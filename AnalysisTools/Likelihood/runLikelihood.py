@@ -17,12 +17,27 @@ if __name__ == "__main__":
    
     reader = Reader(options.inputFile, options.n)
 
-
-    print(reader.infected[4])
+    count = 0
+    #for j, i in enumerate(reader.infected):
+    #    print(j, i)
+    #for i in range(0, len(reader.contacts)):
+    #    for j in range(0, len(reader.contacts)):
+    #        if i == j:
+    #            continue
+    #        print('Person ' + str(i) + ' and person ' + str(j), reader.contacts[i][j]) 
+    #print(reader.infected[10])
+    #print(reader.infected[20])
+    #print(reader.infected[70])
+    #print(reader.infected[100])
+    #print(reader.infected[200])
+    #print(reader.infected[300])
 
     likelihood = Likelihood(reader)
 
-    p = [0.5, 0.4, 0.3, 0.2, 0.1, 0.01, 0.008, 0.006, 0.004, 0.003, 0.002, 0.001, 0.0005, 0.0001]
+    p = [0.5, 0.4, 0.3, 0.2, 0.1, 0.01, 0.008, 0.006, 0.004]
+    for i in range(0, 30):
+        p.append(0.003 - i * 0.0001)
+
     for s in p:
         print(s, likelihood.q(s))
 
