@@ -238,7 +238,6 @@ class City:
                            mydict[j[0]] += j[4]
                        else:
                            mydict[j[0]] = j[4]
-
         totalSuspiciousMatches = []
         k = sorted(mydict.items(), key=lambda x: x[1], reverse=True)
         for c in k:
@@ -306,6 +305,7 @@ class City:
         #Testing families - strategy 2
         if (strategy==2):
             notYetTested=[x for x in self.suspiciousFamilies() if x not in self.tested and self.thePopulation[x].quarantine!=1 and self.thePopulation[x].health !=2]
+            #print(notYetTested)
 
         #Testing bluetooth matches - strategy 3 and putting in quarantine all the bluetooth matches - strategy 4
         if (strategy ==3 or strategy ==4):
@@ -322,7 +322,8 @@ class City:
 
         #Testing bluetooth matches and sending the no tested to quarantine - strategy 5
         if (strategy == 6):
-            notYetTested=[x for x in self.suspiciousBluetoothMatchesWithTime() if x not in self.tested and self.thePopulation[x].symptoms==0 and self.thePopulation[x].health!=2]
+            #notYetTested=[x for x in self.suspiciousBluetoothMatchesWithTime() if x not in self.tested and self.thePopulation[x].symptoms==0 and self.thePopulation[x].health!=2]
+            notYetTested=[x for x in self.suspiciousBluetoothMatchesWithTime() if x not in self.tested and self.thePopulation[x].quarantine != 1 and self.thePopulation[x].health!=2]
             #print('Testing: ')
             #print(notYetTested)
 
@@ -386,6 +387,7 @@ class City:
         if strategy == 6:
             if len(notYetTested) >= self.conf.numberOfTestsPerDay:
                 dailyTested=notYetTested[0:self.conf.numberOfTestsPerDay]
+                #print(dailyTested) 
             else:
                 dailyTested=notYetTested
            
