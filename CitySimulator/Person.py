@@ -46,6 +46,8 @@ class Person:
         self.newHealth = 0
         self.quarantine = 0
         self.quarantineTime=0
+        self.lastTestTime= -7200
+        self.familyTested= False
         self.timeOfInfection = 0
         self.timeToInfect = int(round(random.gammavariate(conf.timeToInfectLambda, 1)))
         self.canInfect = 0
@@ -63,6 +65,7 @@ class Person:
         self.bluetoothOldMatches = []
         self.bluetoothUpdate = random.randint(0, 24*60-1)
         self.bluetoothOn= 0
+
     def setHours(self):
         self.oldTimeToGoHome = self.timeToGoHome
         while True:
@@ -84,7 +87,6 @@ class Person:
         self.timeOfIncubation = self.timeOfIncubation + time
         self.timeOfCuration = self.timeOfCuration + time
 
-
     def bluetoothMatch(self, personindex, x, y, time):
 
         isnew = True 
@@ -96,13 +98,22 @@ class Person:
         if isnew:
             self.bluetoothmatches.append([personindex, x, y, time, 0])
 
-    def updateBluetooth(self, janus):
+
+    def updateBluetooth(self, janus, time):
+
+        todelete = []
+        for j, i in enumerate(self.bluetoothOldMatches):
+            if i[3] - time > 8460:
+                todelete.append(j)
+  
+        for i in todelete:
+            del self.bluetoothOldMatches[i]
 
         for i in self.bluetoothmatches:
             janus.insertMatch('person_' + str(self.person), 'person_' + str(i[0]), int(self.health), int(0), int(self.timeOfInfection), int(self.timeOfCuration), i[1], i[2], int(i[3]), int(i[4]))
             self.bluetoothOldMatches.append(i)
         self.bluetoothmatches.clear()
-
+        
 
     def Print(self):
 
