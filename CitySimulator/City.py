@@ -51,6 +51,8 @@ class City:
         self.infected = []
         self.cured = []
         self.nquarantine=[]
+        self.ntest=[]
+        self.ntestpositive=[]
         
      	#Creating the population
         self.thePopulation = self.PopulationBuilder()
@@ -122,7 +124,7 @@ class City:
             house = self.buildings[index] 
             for floor in house.floors:
                 for app in floor.appartments:
-                    npeople = int(round(random.gammavariate(self.conf.averagePopulationPerAppartment, 1)))
+                    npeople = min(7, int(round(random.gammavariate(self.conf.averagePopulationPerAppartment, 1))))
                     indexofpeople = []
                     for individual in range(0, npeople):
                         personId = 'person_' + str(personindex)
@@ -160,7 +162,7 @@ class City:
     def runDay(self, day):
         self.checkStats(day)
         if self.nQuarantine > 0:
-            self.cdc.runTests(day, self.time)
+            self.cdc.runTests(self.time, day)
         for j in range(0, 1440):
             self.runMinute()
             self.time = self.time + 1
@@ -222,7 +224,7 @@ class City:
                     #Tracking infections
                     if len(app.persons) == 0:
                         continue
-                    healthypeople = [x for x in app.persons if self.thePopulation[x].health == 0]
+                    healthypeople = [x for x in app.persons if self.thePopulation[x].health == 0 and not self.thePopulation[x].quarantine == 1]
                     caninfectpeople = [x for x in app.persons if self.thePopulation[x].canInfect == 1 and not self.thePopulation[x].quarantine == 1]
                     for i in itertools.product(healthypeople, caninfectpeople):
                         #if i[0] <= i[1]:
@@ -518,17 +520,19 @@ class City:
 
         print('----------------Stats--------------------')
         print('Day: ', str(day))
-        print('Number of healthy people: ' + str(self.nHealthy) + ', number of infected people: ' + str(self.nInfected) + ', number of cured people: ' + str(self.nCured) + " and  number of people in quarantine: ", self.nQuarantine)  
+        print('Number of healthy people: ' + str(self.nHealthy) + ', number of infected people: ' + str(self.nInfected) + ', number of cured people: ' + str(self.nCured) + ', number of people in quarantine: ' + str(self.nQuarantine) + ' and number of tests ' + str(self.cdc.numberOfTests) + ' with positives ' + str(self.cdc.numberOfTestsPositive))  
         self.days.append(day)
         self.healthy.append(self.nHealthy)
         self.infected.append(self.nInfected)
         self.cured.append(self.nCured)
         self.nquarantine.append(self.nQuarantine)
+        self.ntest.append(self.cdc.numberOfTests)
+        self.ntestpositive.append(self.cdc.numberOfTestsPositive)
     ####################################################################################################
     ###################################################################################################
     def Save(self):
 
-        thelist = [self.days, self.healthy, self.infected, self.cured, self.nquarantine]
+        thelist = [self.days, self.healthy, self.infected, self.cured, self.nquarantine, self.ntest, self.ntestpositive]
         nparr = np.asarray(thelist)
         np.savetxt(self.filename, nparr, delimiter=',')
 
