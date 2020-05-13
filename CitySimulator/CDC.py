@@ -214,6 +214,6 @@ class CDC:
 
         #Testing bluetooth matches and sending the no tested to quarantine - strategy 5
         if (strategy == 5):
-            self.runTestStrategy4()
+            self.runTestStrategy5()
 
 
