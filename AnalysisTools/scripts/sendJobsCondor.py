@@ -176,7 +176,7 @@ if __name__ == "__main__":
         if theStrategy == 0:
             for theCitySize in citySizes:
                 for delay in delays:
-			        for prob in probability:
+                    for prob in probability:
                         for theAsymp in asymptoms:
                             tag = 'City_' + str(theCitySize) + '_strategy0_probability' + prob + '_asymp' + str(theAsymp) + '_delay' + delay
                             makeTag(runfile, tag, theCitySize, theStrategy, tests[0], engagements[0], lbluetooths[0], theAsymp, prob, options.nseed, options.nseedcity, delay)
