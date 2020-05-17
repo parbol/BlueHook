@@ -121,7 +121,7 @@ def makeTag(thefile, tag, citysize, strategy, test, engagement, lbluetooth, asym
             fexe.close()
             st = os.stat(executableName)
             os.chmod(executableName, st.st_mode | stat.S_IEXEC)
-            addendum = 'sbatch ' + ' -o ' + logFileName + ' -e ' + errFileName + ' --qos=gridui_sort --partition=cloudcms ' + executableName + '\n'
+            addendum = 'sbatch ' + ' -o ' + logFileName + ' -e ' + errFileName + ' --qos=gridui_medium --partition=cloudcms ' + executableName + '\n'
             thefile.write(addendum)
 
 
