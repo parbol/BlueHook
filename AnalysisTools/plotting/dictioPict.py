@@ -130,7 +130,7 @@ def insert(newdir, k, v, offset, nSeed, index):
 
 
 
-def drawFullPlot(dictionary, prob, nSeed, index):
+def drawFullPlot(dictionary, prob, nSeed, index, delay):
 
     if index == 1:
         title = 'Susceptibles [%]'
@@ -148,45 +148,47 @@ def drawFullPlot(dictionary, prob, nSeed, index):
 
     newdir = dict()
     for k, v in dictionary.items():
+        if prob not in k or delay not in k:
+            continue
         if 'strategy0' in k and 'asymp0.25' in k and prob in k:
            insert(newdir, k, v, 0, nSeed, index)
-        elif 'strategy1' in k and 'asymp0.25' in k and 'testing50' in k and prob in k:
-           insert(newdir, k, v, 1, nSeed, index)
         elif 'strategy1' in k and 'asymp0.25' in k and 'testing100' in k and prob in k:
+           insert(newdir, k, v, 1, nSeed, index)
+        elif 'strategy1' in k and 'asymp0.25' in k and 'testing300' in k and prob in k:
            insert(newdir, k, v, 2, nSeed, index)
-        elif 'strategy2' in k and 'asymp0.25' in k and 'testing50' in k and prob in k:
-           insert(newdir, k, v, 3, nSeed, index)
         elif 'strategy2' in k and 'asymp0.25' in k and 'testing100' in k and prob in k:
+           insert(newdir, k, v, 3, nSeed, index)
+        elif 'strategy2' in k and 'asymp0.25' in k and 'testing300' in k and prob in k:
            insert(newdir, k, v, 4, nSeed, index)
-        elif 'strategy3' in k and 'asymp0.25' in k and 'testing50' in k and prob in k:
-           insert(newdir, k, v, 5, nSeed, index)
         elif 'strategy3' in k and 'asymp0.25' in k and 'testing100' in k and prob in k:
+           insert(newdir, k, v, 5, nSeed, index)
+        elif 'strategy3' in k and 'asymp0.25' in k and 'testing300' in k and prob in k:
            insert(newdir, k, v, 6, nSeed, index)
         elif 'strategy4' in k and 'asymp0.25' in k and prob in k:
            insert(newdir, k, v, 7, nSeed, index)
-        elif 'strategy5' in k and 'asymp0.25' in k and 'testing50' in k and prob in k:
-           insert(newdir, k, v, 8, nSeed, index)
         elif 'strategy5' in k and 'asymp0.25' in k and 'testing100' in k and prob in k:
+           insert(newdir, k, v, 8, nSeed, index)
+        elif 'strategy5' in k and 'asymp0.25' in k and 'testing300' in k and prob in k:
            insert(newdir, k, v, 9, nSeed, index)
         elif 'strategy0' in k and 'asymp0.75' in k and prob in k:
            insert(newdir, k, v, 10, nSeed, index)
-        elif 'strategy1' in k and 'asymp0.75' in k and 'testing50' in k and prob in k:
-           insert(newdir, k, v, 11, nSeed, index)
         elif 'strategy1' in k and 'asymp0.75' in k and 'testing100' in k and prob in k:
+           insert(newdir, k, v, 11, nSeed, index)
+        elif 'strategy1' in k and 'asymp0.75' in k and 'testing300' in k and prob in k:
            insert(newdir, k, v, 12, nSeed, index)
-        elif 'strategy2' in k and 'asymp0.75' in k and 'testing50' in k and prob in k:
-           insert(newdir, k, v, 13, nSeed, index)
         elif 'strategy2' in k and 'asymp0.75' in k and 'testing100' in k and prob in k:
+           insert(newdir, k, v, 13, nSeed, index)
+        elif 'strategy2' in k and 'asymp0.75' in k and 'testing300' in k and prob in k:
            insert(newdir, k, v, 14, nSeed, index)
-        elif 'strategy3' in k and 'asymp0.75' in k and 'testing50' in k and prob in k:
-           insert(newdir, k, v, 15, nSeed, index)
         elif 'strategy3' in k and 'asymp0.75' in k and 'testing100' in k and prob in k:
+           insert(newdir, k, v, 15, nSeed, index)
+        elif 'strategy3' in k and 'asymp0.75' in k and 'testing300' in k and prob in k:
            insert(newdir, k, v, 16, nSeed, index)
         elif 'strategy4' in k and 'asymp0.75' in k and prob in k:
            insert(newdir, k, v, 17, nSeed, index)
-        elif 'strategy5' in k and 'asymp0.75' in k and 'testing50' in k and prob in k:
-           insert(newdir, k, v, 18, nSeed, index)
         elif 'strategy5' in k and 'asymp0.75' in k and 'testing100' in k and prob in k:
+           insert(newdir, k, v, 18, nSeed, index)
+        elif 'strategy5' in k and 'asymp0.75' in k and 'testing300' in k and prob in k:
            insert(newdir, k, v, 19, nSeed, index)
 
     newdirnumpy = dict()
@@ -201,9 +203,50 @@ def drawFullPlot(dictionary, prob, nSeed, index):
     plt.ylim(0, 1.0)
     ticks = [x for x in np.arange(nSeed*len(newdirnumpy)) if not x%5 and x %10]
     for k,v in newdirnumpy.items():
-        plt.plot(v[0], v[1], 'p')
+        if 'strategy0' in k:
+            color = '#051e3e'
+            marker = '.'
+            s = 7
+        if 'strategy1' in k and 'testing100' in k:
+            color = '#251e3e'
+            marker = '.'
+            s = 7
+        if 'strategy1' in k and 'testing300' in k:
+            color = '#251e3e'
+            marker = 's'
+            s = 5
+        if 'strategy2' in k and 'testing100' in k:
+            color = '#451e3e'
+            marker = '.'
+            s = 7
+        if 'strategy2' in k and 'testing300' in k:
+            color = '#451e3e'
+            marker = 's'
+            s = 5
+        if 'strategy3' in k and 'testing100' in k:
+            color = '#651e3e'
+            marker = '.'
+            s = 7
+        if 'strategy3' in k and 'testing300' in k:
+            color = '#651e3e'
+            marker = 's'
+            s = 5
+        if 'strategy4' in k:
+            color = '#851e3e'
+            marker = '.'
+            s = 7
+        if 'strategy5' in k and 'testing100' in k:
+            color = '#951e3e'
+            marker = '.'
+            s = 7
+        if 'strategy5' in k and 'testing300' in k:
+            color = '#951e3e'
+            marker = 's'
+            s = 5
 
-    labels = ['0', '1 (50)', '1 (100)', '2 (50)', '2 (100)', '3 (50)', '3 (100)', '4', '5 (50)', '5 (100)']
+        plt.plot(v[0], v[1], 'p', markersize=s, color=color, marker=marker)
+
+    labels = ['0', '1 (100)', '1 (300)', '2 (100)', '2 (300)', '3 (100)', '3 (300)', '4', '5 (100)', '5 (300)']
     labels = labels + labels
     for i in range(1, 20):
         plt.axvline(x=i*nSeed, color='black', linestyle='dashed')
@@ -215,26 +258,26 @@ def drawFullPlot(dictionary, prob, nSeed, index):
     else:
         plt.tick_params(axis='x', labelbottom=False)
 
-def drawFullPlots(dictionary, prob, nseed):
+def drawFullPlots(dictionary, prob, nseed, delay):
 
     fig = plt.figure(figsize = (15, 15))
-    drawFullPlot(dictionary, prob, nseed, 1)
-    drawFullPlot(dictionary, prob, nseed, 2)
-    drawFullPlot(dictionary, prob, nseed, 3)
-    drawFullPlot(dictionary, prob, nseed, 4)
-    drawFullPlot(dictionary, prob, nseed, 5)
-    drawFullPlot(dictionary, prob, nseed, 6)
+    drawFullPlot(dictionary, prob, nseed, 1, delay)
+    drawFullPlot(dictionary, prob, nseed, 2, delay)
+    drawFullPlot(dictionary, prob, nseed, 3, delay)
+    drawFullPlot(dictionary, prob, nseed, 4, delay)
+    drawFullPlot(dictionary, prob, nseed, 5, delay)
+    drawFullPlot(dictionary, prob, nseed, 6, delay)
     plt.show() 
 
 if __name__ == "__main__":
 
     dictionary = readFiles()
     #draw('City_600_strategy0_probability0.025_asymp0.25\w*', dictionary, 1, 'strategy0seeds')
-    #draw('City_600_strategy1_probability0.025_testing50_asymp0.25\w*', dictionary, 1, 'strategy1seeds')
-    #draw('City_600_strategy2_probability0.025_testing50_asymp0.25\w*', dictionary, 1, 'strategy2seeds0.25')
-    #draw('City_600_strategy2_probability0.025_testing100_asymp0.75\w*', dictionary, 1, 'strategy2seeds0.75')
-    #draw('City_600_strategy3_probability0.025_testing100_engage100_lblue2_asymp0.25\w*', dictionary, 1, 'strategy3seeds')
+    #draw('City_600_strategy1_probability0.025_testing100_asymp0.25\w*', dictionary, 1, 'strategy1seeds')
+    #draw('City_600_strategy2_probability0.025_testing100_asymp0.25\w*', dictionary, 1, 'strategy2seeds0.25')
+    #draw('City_600_strategy2_probability0.025_testing300_asymp0.75\w*', dictionary, 1, 'strategy2seeds0.75')
+    #draw('City_600_strategy3_probability0.025_testing300_engage100_lblue2_asymp0.25\w*', dictionary, 1, 'strategy3seeds')
     #draw('City_600_strategy4_probability0.025_engage100_lblue2_asymp0.25\w*', dictionary, 1, 'strategy4seeds')
-    #draw('City_600_strategy5_probability0.025_testing100_engage100_lblue2_asymp0.25\w*', dictionary, 1, 'strategy5seeds')
-    drawFullPlots(dictionary, 'probability0.025', 10)
+    #draw('City_600_strategy5_probability0.025_testing300_engage100_lblue2_asymp0.25\w*', dictionary, 1, 'strategy5seeds')
+    drawFullPlots(dictionary, 'probability0.025', 10, 'delay0')
 

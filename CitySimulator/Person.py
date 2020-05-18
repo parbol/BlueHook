@@ -52,10 +52,10 @@ class Person:
         self.timeToInfect = int(round(random.gammavariate(conf.timeToInfectLambda, 1)))
         self.canInfect = 0
         if conf.incubationLambda == 0:
-            self.timeOfIncubation = self.timeToInfect 
+            self.timeOfIncubation = self.timeToInfect + 1 
         else:
-            self.timeOfIncubation = self.timeToInfect + int(round(random.gammavariate(conf.incubationLambda, 1)))
-        self.timeOfCuration = self.timeOfIncubation + int(round(random.gammavariate(conf.curationLambda, 1)))
+            self.timeOfIncubation = self.timeToInfect + 1 + int(round(random.gammavariate(conf.incubationLambda, 1)))
+        self.timeOfCuration = self.timeOfIncubation + 1 + int(round(random.gammavariate(conf.curationLambda, 1)))
         dice = random.random()
         if dice < conf.noSymptomsProbability:
             self.hasSymptoms = 0
