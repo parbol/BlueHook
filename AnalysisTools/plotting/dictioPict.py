@@ -1,3 +1,4 @@
+from optparse import OptionParser
 import re
 import os
 import numpy as np
@@ -28,7 +29,7 @@ def normalize(array):
     for j in range(0, array.shape[1]): 
         if array[5, j] != 0:
             array[6,j] /= array[5,j]
-    array[5,:] /= totalPopulation
+    #array[5,:] /= totalPopulation
 
 
 def readFiles():
@@ -116,7 +117,6 @@ def insert(newdir, k, v, offset, nSeed, index):
     name = k[0:k.find('_seed')]
     seedpos = int(k[k.find('CitySeed')+8:len(k)])
     maxvalue = getMaxValues(v, index)
-    print('Entering in', k, maxvalue)
     if name in newdir.keys():
         newdir[name][0].append(offset * nSeed + seedpos)
         newdir[name][1].append(maxvalue)
@@ -141,7 +141,7 @@ def drawFullPlot(dictionary, prob, nSeed, index, delay):
     elif index == 4:
         title = 'Quarantine [%]'
     elif index == 5:
-        title = 'Tests [%]'
+        title = 'N. Tests'
     elif index == 6:
         title = 'Positive tests [%]'
         
@@ -244,6 +244,9 @@ def drawFullPlot(dictionary, prob, nSeed, index, delay):
             marker = 's'
             s = 5
 
+        if index == 5:
+            plt.ylim(0, 20000)
+            plt.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
         plt.plot(v[0], v[1], 'p', markersize=s, color=color, marker=marker)
 
     labels = ['0', '1 (100)', '1 (300)', '2 (100)', '2 (300)', '3 (100)', '3 (300)', '4', '5 (100)', '5 (300)']
@@ -260,6 +263,8 @@ def drawFullPlot(dictionary, prob, nSeed, index, delay):
 
 def drawFullPlots(dictionary, prob, nseed, delay):
 
+    filename = prob + '_' + delay + '.png'
+
     fig = plt.figure(figsize = (15, 15))
     drawFullPlot(dictionary, prob, nseed, 1, delay)
     drawFullPlot(dictionary, prob, nseed, 2, delay)
@@ -267,9 +272,20 @@ def drawFullPlots(dictionary, prob, nseed, delay):
     drawFullPlot(dictionary, prob, nseed, 4, delay)
     drawFullPlot(dictionary, prob, nseed, 5, delay)
     drawFullPlot(dictionary, prob, nseed, 6, delay)
-    plt.show() 
+
+    plt.savefig(filename)
+    plt.close(fig)
+
 
 if __name__ == "__main__":
+
+
+    parser = OptionParser(usage="%prog --help")
+    parser.add_option("-p", "--probability",      dest="prob",        type="string",      default='0.025',          help="Probability.")
+    parser.add_option("-d", "--delay",            dest="delay",       type="string",      default='4',              help="Delay.")
+    (options, args) = parser.parse_args()
+
+
 
     dictionary = readFiles()
     #draw('City_600_strategy0_probability0.025_asymp0.25\w*', dictionary, 1, 'strategy0seeds')
@@ -279,5 +295,5 @@ if __name__ == "__main__":
     #draw('City_600_strategy3_probability0.025_testing300_engage100_lblue2_asymp0.25\w*', dictionary, 1, 'strategy3seeds')
     #draw('City_600_strategy4_probability0.025_engage100_lblue2_asymp0.25\w*', dictionary, 1, 'strategy4seeds')
     #draw('City_600_strategy5_probability0.025_testing300_engage100_lblue2_asymp0.25\w*', dictionary, 1, 'strategy5seeds')
-    drawFullPlots(dictionary, 'probability0.025', 10, 'delay0')
+    drawFullPlots(dictionary, 'probability' + options.prob, 10, 'delay' + options.delay)
 
