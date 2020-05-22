@@ -649,7 +649,7 @@ def drawFullPlotBluetooth(dictionary, nSeed, index):
            insert(newdir, k, v, 20, nSeed, index)
         elif 'strategy3' in k and 'testing300' in k and 'engage75' in k and 'lblue4' in k:
            insert(newdir, k, v, 21, nSeed, index)
-        elif 'strategy4' in k and 'engage75' in k and 'lblue2' in k:
+        elif 'strategy4' in k and 'engage75' in k and 'lblue4' in k:
            insert(newdir, k, v, 22, nSeed, index)
         elif 'strategy5' in k and 'testing100' in k and 'engage75' in k and 'lblue4' in k:
            insert(newdir, k, v, 23, nSeed, index)
