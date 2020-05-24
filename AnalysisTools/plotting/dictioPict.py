@@ -9,11 +9,23 @@ import glob
 import math
 
 
+color1 = '#734C9F'
+color2 = '#0198CF'
+color3 = '#5DBA47'
+color4 = '#F8E429'
+color5 = '#FBAA4E'
+color6 = '#EF4C9D'
+
+
+
 def getMaxValues(array, index):
 
     if index == 1:
-        maxindex = np.argmin(array[index, :])
-        maxvalue = array[index, maxindex]
+        maxindex = np.argmax(array[2, :])
+        maxvalue = array[2, maxindex]
+    elif index == 2:
+        maxindex = np.argmin(array[1, :])
+        maxvalue = array[1, maxindex]
     elif index == 6:
         maxvalue = array[index, array.shape[1]-1]
     else:
@@ -136,17 +148,17 @@ def insert(newdir, k, v, offset, nSeed, index):
 def drawFullPlot(dictionary, prob, nSeed, index, delay, tag):
 
     if index == 1:
-        title = 'MSF'
+        title = 'MIR'
     elif index == 2:
-        title = 'MIF'
+        title = 'MSR'
     elif index == 3:
-        title = 'MRF'
+        title = 'MRR'
     elif index == 4:
-        title = 'MQF'
+        title = 'MQR'
     elif index == 5:
         title = 'N. Tests'
     elif index == 6:
-        title = 'TPF'
+        title = 'TPR'
         
 
     newdir = dict()
@@ -207,43 +219,53 @@ def drawFullPlot(dictionary, prob, nSeed, index, delay, tag):
     ticks = [x for x in np.arange(nSeed*len(newdirnumpy)) if not x%5 and x %10]
     for k,v in newdirnumpy.items():
         if 'strategy0' in k:
-            color = '#051e3e'
+            #color = '#051e3e'
+            color = color1
             marker = '.'
             s = 7
         if 'strategy1' in k and 'testing100' in k:
-            color = '#251e3e'
+            #color = '#251e3e'
+            color = color2
             marker = '.'
             s = 7
         if 'strategy1' in k and 'testing300' in k:
-            color = '#251e3e'
+            #color = '#251e3e'
+            color = color2
             marker = 's'
             s = 5
         if 'strategy2' in k and 'testing100' in k:
-            color = '#451e3e'
+            #color = '#451e3e'
+            color = color3
             marker = '.'
             s = 7
         if 'strategy2' in k and 'testing300' in k:
-            color = '#451e3e'
+            #color = '#451e3e'
+            color = color3
             marker = 's'
             s = 5
         if 'strategy3' in k and 'testing100' in k:
-            color = '#651e3e'
+            #color = '#651e3e'
+            color = color4
             marker = '.'
             s = 7
         if 'strategy3' in k and 'testing300' in k:
-            color = '#651e3e'
+            #color = '#651e3e'
+            color = color4
             marker = 's'
             s = 5
         if 'strategy4' in k:
-            color = '#851e3e'
+            #color = '#851e3e'
+            color = color5
             marker = '.'
             s = 7
         if 'strategy5' in k and 'testing100' in k:
-            color = '#951e3e'
+            #color = '#951e3e'
+            color = color6
             marker = '.'
             s = 7
         if 'strategy5' in k and 'testing300' in k:
-            color = '#951e3e'
+            #color = '#951e3e'
+            color = color6
             marker = 's'
             s = 5
 
@@ -269,17 +291,17 @@ def drawFullPlot(dictionary, prob, nSeed, index, delay, tag):
 def drawFullPlotAsymp(dictionary, asymp, nSeed, index, delay, tag):
 
     if index == 1:
-        title = 'MSF'
+        title = 'MIR'
     elif index == 2:
-        title = 'MIF'
+        title = 'MSR'
     elif index == 3:
-        title = 'MRF'
+        title = 'MRR'
     elif index == 4:
-        title = 'MQF'
+        title = 'MQR'
     elif index == 5:
         title = 'N. Tests'
     elif index == 6:
-        title = 'TPF'
+        title = 'TPR'
         
     plt.figtext(0.2, 0.90, 'Probability: 0.025')
     plt.figtext(0.47, 0.90, 'Probability: 0.035')
@@ -361,43 +383,53 @@ def drawFullPlotAsymp(dictionary, asymp, nSeed, index, delay, tag):
     ticks = [x for x in np.arange(nSeed*len(newdirnumpy)) if not x%5 and x %10]
     for k,v in newdirnumpy.items():
         if 'strategy0' in k:
-            color = '#051e3e'
+            #color = '#051e3e'
+            color = color1
             marker = '.'
             s = 7
         if 'strategy1' in k and 'testing100' in k:
-            color = '#251e3e'
+            #color = '#251e3e'
+            color = color2
             marker = '.'
             s = 7
         if 'strategy1' in k and 'testing300' in k:
-            color = '#251e3e'
+            #color = '#251e3e'
+            color = color2
             marker = 's'
             s = 5
         if 'strategy2' in k and 'testing100' in k:
-            color = '#451e3e'
+            #color = '#451e3e'
+            color = color3
             marker = '.'
             s = 7
         if 'strategy2' in k and 'testing300' in k:
-            color = '#451e3e'
+            #color = '#451e3e'
+            color = color3
             marker = 's'
             s = 5
         if 'strategy3' in k and 'testing100' in k:
-            color = '#651e3e'
+            #color = '#651e3e'
+            color = color4
             marker = '.'
             s = 7
         if 'strategy3' in k and 'testing300' in k:
-            color = '#651e3e'
+            #color = '#651e3e'
+            color = color4
             marker = 's'
             s = 5
         if 'strategy4' in k:
-            color = '#851e3e'
+            #color = '#851e3e'
+            color = color5
             marker = '.'
             s = 7
         if 'strategy5' in k and 'testing100' in k:
-            color = '#951e3e'
+            #color = '#951e3e'
+            color = color6
             marker = '.'
             s = 7
         if 'strategy5' in k and 'testing300' in k:
-            color = '#951e3e'
+            #color = '#951e3e'
+            color = color6
             marker = 's'
             s = 5
 
@@ -425,17 +457,17 @@ def drawFullPlotAsymp(dictionary, asymp, nSeed, index, delay, tag):
 def drawFullPlotAsympDelay(dictionary, asymp, nSeed, index, prob, tag):
 
     if index == 1:
-        title = 'MSF'
+        title = 'MIR'
     elif index == 2:
-        title = 'MIF'
+        title = 'MSR'
     elif index == 3:
-        title = 'MRF'
+        title = 'MRR'
     elif index == 4:
-        title = 'MQF'
+        title = 'MQR'
     elif index == 5:
         title = 'N. Tests'
     elif index == 6:
-        title = 'TPF'
+        title = 'TPR'
         
     plt.figtext(0.23, 0.90, 'IPS: 0')
     plt.figtext(0.50, 0.90, 'IPS: 2')
@@ -517,43 +549,53 @@ def drawFullPlotAsympDelay(dictionary, asymp, nSeed, index, prob, tag):
     ticks = [x for x in np.arange(nSeed*len(newdirnumpy)) if not x%5 and x %10]
     for k,v in newdirnumpy.items():
         if 'strategy0' in k:
-            color = '#051e3e'
+            #color = '#051e3e'
+            color = color1
             marker = '.'
             s = 7
         if 'strategy1' in k and 'testing100' in k:
-            color = '#251e3e'
+            #color = '#251e3e'
+            color = color2
             marker = '.'
             s = 7
         if 'strategy1' in k and 'testing300' in k:
-            color = '#251e3e'
+            #color = '#251e3e'
+            color = color2
             marker = 's'
             s = 5
         if 'strategy2' in k and 'testing100' in k:
-            color = '#451e3e'
+            #color = '#451e3e'
+            color = color3
             marker = '.'
             s = 7
         if 'strategy2' in k and 'testing300' in k:
-            color = '#451e3e'
+            #color = '#451e3e'
+            color = color3
             marker = 's'
             s = 5
         if 'strategy3' in k and 'testing100' in k:
-            color = '#651e3e'
+            #color = '#651e3e'
+            color = color4
             marker = '.'
             s = 7
         if 'strategy3' in k and 'testing300' in k:
-            color = '#651e3e'
+            #color = '#651e3e'
+            color = color4
             marker = 's'
             s = 5
         if 'strategy4' in k:
-            color = '#851e3e'
+            #color = '#851e3e'
+            color = color5
             marker = '.'
             s = 7
         if 'strategy5' in k and 'testing100' in k:
-            color = '#951e3e'
+            #color = '#951e3e'
+            color = color6
             marker = '.'
             s = 7
         if 'strategy5' in k and 'testing300' in k:
-            color = '#951e3e'
+            #color = '#951e3e'
+            color = color6
             marker = 's'
             s = 5
 
@@ -581,89 +623,75 @@ def drawFullPlotAsympDelay(dictionary, asymp, nSeed, index, prob, tag):
 def drawFullPlotBluetooth(dictionary, nSeed, index):
 
     if index == 1:
-        title = 'MSF'
+        title = 'MIR'
     elif index == 2:
-        title = 'MIF'
+        title = 'MSR'
     elif index == 3:
-        title = 'MRF'
+        title = 'MRR'
     elif index == 4:
-        title = 'MQF'
+        title = 'MQR'
     elif index == 5:
         title = 'N. Tests'
     elif index == 6:
-        title = 'TPF'
+        title = 'TPR'
         
-    plt.figtext(0.125, 0.90, 'Eng: 100%, CTS range: 2m')
-    plt.figtext(0.26, 0.90, 'Eng: 75%, CTS range: 2m')
-    plt.figtext(0.39, 0.90, 'Eng: 25%, CTS range: 2m')
-    plt.figtext(0.515, 0.90, 'Eng: 100%, CTS range: 4m')
-    plt.figtext(0.645, 0.90, 'Eng: 75%, CTS range: 4m')
-    plt.figtext(0.78, 0.90, 'Eng: 25%, CTS range: 4m')
-
+    plt.figtext(0.2, 0.90, 'Engagement: 100%')
+    plt.figtext(0.47, 0.90, 'Engagement: 75%')
+    plt.figtext(0.72, 0.90, 'Engagement: 25%')
 
     newdir = dict()
     for k, v in dictionary.items():
-        if 'probability0.035' not in k or 'asymp0.25' not in k or 'engage' not in k or 'delay2' not in k:
+        if 'probability0.035' not in k or 'asymp0.25' not in k or 'delay2' not in k or 'lblue4' in k:
             continue
-        if 'strategy3' in k and 'testing100' in k and 'engage100' in k and 'lblue2' in k:
+        if 'strategy0' in k:
            insert(newdir, k, v, 0, nSeed, index)
-        elif 'strategy3' in k and 'testing300' in k and 'engage100' in k and 'lblue2' in k:
-           insert(newdir, k, v, 1, nSeed, index)
-        elif 'strategy4' in k and 'engage100' in k and 'lblue2' in k:
-           insert(newdir, k, v, 2, nSeed, index)
-        elif 'strategy5' in k and 'testing100' in k and 'engage100' in k and 'lblue2' in k:
-           insert(newdir, k, v, 3, nSeed, index)
-        elif 'strategy5' in k and 'testing300' in k and 'engage100' in k and 'lblue2' in k:
-           insert(newdir, k, v, 4, nSeed, index)
-        elif 'strategy3' in k and 'testing100' in k and 'engage75' in k and 'lblue2' in k:
-           insert(newdir, k, v, 5, nSeed, index)
-        elif 'strategy3' in k and 'testing300' in k and 'engage75' in k and 'lblue2' in k:
-           insert(newdir, k, v, 6, nSeed, index)
-        elif 'strategy4' in k and 'engage75' in k and 'lblue2' in k:
-           insert(newdir, k, v, 7, nSeed, index)
-        elif 'strategy5' in k and 'testing100' in k and 'engage75' in k and 'lblue2' in k:
-           insert(newdir, k, v, 8, nSeed, index)
-        elif 'strategy5' in k and 'testing300' in k and 'engage75' in k and 'lblue2' in k:
-           insert(newdir, k, v, 9, nSeed, index)
-        elif 'strategy3' in k and 'testing100' in k and 'engage25' in k and 'lblue2' in k:
            insert(newdir, k, v, 10, nSeed, index)
-        elif 'strategy3' in k and 'testing300' in k and 'engage25' in k and 'lblue2' in k:
-           insert(newdir, k, v, 11, nSeed, index)
-        elif 'strategy4' in k and 'engage25' in k and 'lblue2' in k:
-           insert(newdir, k, v, 12, nSeed, index)
-        elif 'strategy5' in k and 'testing100' in k and 'engage25' in k and 'lblue2' in k:
-           insert(newdir, k, v, 13, nSeed, index)
-        elif 'strategy5' in k and 'testing300' in k and 'engage25' in k and 'lblue2' in k:
-           insert(newdir, k, v, 14, nSeed, index)
-        elif 'strategy3' in k and 'testing100' in k and 'engage100' in k and 'lblue4' in k:
-           insert(newdir, k, v, 15, nSeed, index)
-        elif 'strategy3' in k and 'testing300' in k and 'engage100' in k and 'lblue4' in k:
-           insert(newdir, k, v, 16, nSeed, index)
-        elif 'strategy4' in k and 'engage100' in k and 'lblue4' in k:
-           insert(newdir, k, v, 17, nSeed, index)
-        elif 'strategy5' in k and 'testing100' in k and 'engage100' in k and 'lblue4' in k:
-           insert(newdir, k, v, 18, nSeed, index)
-        elif 'strategy5' in k and 'testing300' in k and 'engage100' in k and 'lblue4' in k:
-           insert(newdir, k, v, 19, nSeed, index)
-        elif 'strategy3' in k and 'testing100' in k and 'engage75' in k and 'lblue4' in k:
            insert(newdir, k, v, 20, nSeed, index)
-        elif 'strategy3' in k and 'testing300' in k and 'engage75' in k and 'lblue4' in k:
+        elif 'strategy1' in k and 'testing100' in k:
+           insert(newdir, k, v, 1, nSeed, index)
+           insert(newdir, k, v, 11, nSeed, index)
            insert(newdir, k, v, 21, nSeed, index)
-        elif 'strategy4' in k and 'engage75' in k and 'lblue4' in k:
+        elif 'strategy1' in k and 'testing300' in k:
+           insert(newdir, k, v, 2, nSeed, index)
+           insert(newdir, k, v, 12, nSeed, index)
            insert(newdir, k, v, 22, nSeed, index)
-        elif 'strategy5' in k and 'testing100' in k and 'engage75' in k and 'lblue4' in k:
+        elif 'strategy2' in k and 'testing100' in k:
+           insert(newdir, k, v, 3, nSeed, index)
+           insert(newdir, k, v, 13, nSeed, index)
            insert(newdir, k, v, 23, nSeed, index)
-        elif 'strategy5' in k and 'testing300' in k and 'engage75' in k and 'lblue4' in k:
+        elif 'strategy2' in k and 'testing300' in k:
+           insert(newdir, k, v, 4, nSeed, index)
+           insert(newdir, k, v, 14, nSeed, index)
            insert(newdir, k, v, 24, nSeed, index)
-        elif 'strategy3' in k and 'testing100' in k and 'engage25' in k and 'lblue4' in k:
+        elif 'strategy3' in k and 'testing100' in k and 'engage100' in k and 'lblue2' in k:
+           insert(newdir, k, v, 5, nSeed, index)
+        elif 'strategy3' in k and 'testing300' in k and 'engage100' in k and 'lblue2' in k:
+           insert(newdir, k, v, 6, nSeed, index)
+        elif 'strategy4' in k and 'engage100' in k and 'lblue2' in k:
+           insert(newdir, k, v, 7, nSeed, index)
+        elif 'strategy5' in k and 'testing100' in k and 'engage100' in k and 'lblue2' in k:
+           insert(newdir, k, v, 8, nSeed, index)
+        elif 'strategy5' in k and 'testing300' in k and 'engage100' in k and 'lblue2' in k:
+           insert(newdir, k, v, 9, nSeed, index)
+        elif 'strategy3' in k and 'testing100' in k and 'engage75' in k and 'lblue2' in k:
+           insert(newdir, k, v, 15, nSeed, index)
+        elif 'strategy3' in k and 'testing300' in k and 'engage75' in k and 'lblue2' in k:
+           insert(newdir, k, v, 16, nSeed, index)
+        elif 'strategy4' in k and 'engage75' in k and 'lblue2' in k:
+           insert(newdir, k, v, 17, nSeed, index)
+        elif 'strategy5' in k and 'testing100' in k and 'engage75' in k and 'lblue2' in k:
+           insert(newdir, k, v, 18, nSeed, index)
+        elif 'strategy5' in k and 'testing300' in k and 'engage75' in k and 'lblue2' in k:
+           insert(newdir, k, v, 19, nSeed, index)
+        elif 'strategy3' in k and 'testing100' in k and 'engage25' in k and 'lblue2' in k:
            insert(newdir, k, v, 25, nSeed, index)
-        elif 'strategy3' in k and 'testing300' in k and 'engage25' in k and 'lblue4' in k:
+        elif 'strategy3' in k and 'testing300' in k and 'engage25' in k and 'lblue2' in k:
            insert(newdir, k, v, 26, nSeed, index)
-        elif 'strategy4' in k and 'engage25' in k and 'lblue4' in k:
+        elif 'strategy4' in k and 'engage25' in k and 'lblue2' in k:
            insert(newdir, k, v, 27, nSeed, index)
-        elif 'strategy5' in k and 'testing100' in k and 'engage25' in k and 'lblue4' in k:
+        elif 'strategy5' in k and 'testing100' in k and 'engage25' in k and 'lblue2' in k:
            insert(newdir, k, v, 28, nSeed, index)
-        elif 'strategy5' in k and 'testing300' in k and 'engage25' in k and 'lblue4' in k:
+        elif 'strategy5' in k and 'testing300' in k and 'engage25' in k and 'lblue2' in k:
            insert(newdir, k, v, 29, nSeed, index)
 
     newdirnumpy = dict()
@@ -677,43 +705,53 @@ def drawFullPlotBluetooth(dictionary, nSeed, index):
     ticks = [x for x in np.arange(nSeed*30) if not x%5 and x %10]
     for k,v in newdirnumpy.items():
         if 'strategy0' in k:
-            color = '#051e3e'
+            #color = '#051e3e'
+            color = color1
             marker = '.'
             s = 7
         if 'strategy1' in k and 'testing100' in k:
-            color = '#251e3e'
+            #color = '#251e3e'
+            color = color2
             marker = '.'
             s = 7
         if 'strategy1' in k and 'testing300' in k:
-            color = '#251e3e'
+            #color = '#251e3e'
+            color = color2
             marker = 's'
             s = 5
         if 'strategy2' in k and 'testing100' in k:
-            color = '#451e3e'
+            #color = '#451e3e'
+            color = color3
             marker = '.'
             s = 7
         if 'strategy2' in k and 'testing300' in k:
-            color = '#451e3e'
+            #color = '#451e3e'
+            color = color3
             marker = 's'
             s = 5
         if 'strategy3' in k and 'testing100' in k:
-            color = '#651e3e'
+            #color = '#651e3e'
+            color = color4
             marker = '.'
             s = 7
         if 'strategy3' in k and 'testing300' in k:
-            color = '#651e3e'
+            #color = '#651e3e'
+            color = color4
             marker = 's'
             s = 5
         if 'strategy4' in k:
-            color = '#851e3e'
+            #color = '#851e3e'
+            color = color5
             marker = '.'
             s = 7
         if 'strategy5' in k and 'testing100' in k:
-            color = '#951e3e'
+            #color = '#951e3e'
+            color = color6
             marker = '.'
             s = 7
         if 'strategy5' in k and 'testing300' in k:
-            color = '#951e3e'
+            #color = '#951e3e'
+            color = color6
             marker = 's'
             s = 5
 
@@ -723,15 +761,12 @@ def drawFullPlotBluetooth(dictionary, nSeed, index):
             plt.ylabel(title, fontweight='bold', fontsize=10, labelpad=14)
         plt.plot(v[0], v[1], 'p', markersize=s, color=color, marker=marker)
 
-    labels = ['3 (100)', '3 (300)', '4', '5 (100)', '5 (300)']
-    labels = labels + labels + labels + labels + labels + labels + labels
+    labels = ['0', '1 (100)', '1 (300)', '2 (100)', '2 (300)', '3 (100)', '3 (300)', '4', '5 (100)', '5 (300)']
+    labels = labels + labels + labels
     for i in range(1, 30):
         plt.axvline(x=i*nSeed, color='black', linestyle='dashed')
-    plt.axvline(x=5*nSeed, color='red', linestyle='solid', )
     plt.axvline(x=10*nSeed, color='red', linestyle='solid')
-    plt.axvline(x=15*nSeed, color='red', linestyle='solid', )
     plt.axvline(x=20*nSeed, color='red', linestyle='solid')
-    plt.axvline(x=25*nSeed, color='red', linestyle='solid', )
     
     if index == 6:
         plt.xticks(ticks, labels, rotation=45)   
