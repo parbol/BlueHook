@@ -487,7 +487,7 @@ def drawFullPlotAsympDelay(dictionary, asymp, nSeed, index, prob, tag):
            insert(newdir, k, v, 3, nSeed, index)
         elif 'strategy2' in k and 'delay0' in k and 'testing300' in k:
            insert(newdir, k, v, 4, nSeed, index)
-        elif 'strategy3' in k and 'delay0' in k and 'tesging100' in k:
+        elif 'strategy3' in k and 'delay0' in k and 'testing100' in k:
            insert(newdir, k, v, 5, nSeed, index)
         elif 'strategy3' in k and 'delay0' in k and 'testing300' in k:
            insert(newdir, k, v, 6, nSeed, index)
